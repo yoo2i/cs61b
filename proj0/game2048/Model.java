@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author yoo2i
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -95,7 +95,6 @@ public class Model extends Observable {
     }
 
     /** Tilt the board toward SIDE. Return true iff this changes the board.
-     *
      * 1. If two Tile objects are adjacent in the direction of motion and have
      *    the same value, they are merged into one Tile of twice the original
      *    value and that new value is added to the score instance variable
@@ -110,15 +109,52 @@ public class Model extends Observable {
         boolean changed;
         changed = false;
 
-        // TODO: Modify this.board (and perhaps this.score) to account
-        // for the tilt to the Side SIDE. If the board changed, set the
-        // changed local variable to true.
+        board.setViewingPerspective(side);
+
+        //首先实现向上方向的移动
+        for(int i=0;i<=3;i++){
+            int[] change = new int[]{0,0,0,0};
+            for(int j=2;j>=0;j--){
+                if(board.tile(i,j)!=null){
+                    int objrow = findUsefulRow(j,i);
+                    if(objrow!=-1){
+                        changed=true;
+                        if(board.tile(i,objrow)==null){
+                            board.move(i,objrow,board.tile(i,j));
+                        }
+                        else {
+                            if(change[objrow]==0) {
+                                change[objrow] = 1;
+                                board.move(i, objrow, board.tile(i, j));
+                                score += board.tile(i, objrow).value();
+                            }else{
+                                board.move(i,objrow-1,board.tile(i,j));
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+    public int findUsefulRow(int row,int col) {
+        int answer=-1;
+
+        for(int i = row+1;i<=3;i++){
+            if(board.tile(col,i)==null||board.tile(col,i).value()==board.tile(col,row).value()){
+                answer = i;
+            }else break;
+        }
+
+        return answer;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -137,7 +173,14 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+
+        for(int i=0;i<size;i++){
+            for(int j=0;j<size;j++){
+                if(b.tile(i,j)==null)
+                    return true;
+            }
+        }
         return false;
     }
 
@@ -147,7 +190,16 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+
+        for(int i=0;i<size;i++){
+            for(int j=0;j<size;j++){
+                if(b.tile(i,j)!=null){
+                    if(b.tile(i,j).value()==MAX_PIECE)
+                        return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -158,13 +210,43 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        int size = b.size();
+
+        for(int i=0;i<size;i++){
+            for(int j=0;j<size;j++){
+                if(isEmpty(b.tile(i,j)))
+                    return true;
+                if(isLegal(i-1,j,size)&&(isEmpty(b.tile(i-1,j))==false)){
+                    if(b.tile(i-1,j).value()==b.tile(i,j).value())
+                        return true;
+                }
+                if(isLegal(i+1,j,size)&&(isEmpty(b.tile(i+1,j))==false)){
+                    if(b.tile(i+1,j).value()==b.tile(i,j).value())
+                        return true;
+                }
+                if(isLegal(i,j-1,size)&&(isEmpty(b.tile(i,j-1))==false)){
+                    if(b.tile(i,j-1).value()==b.tile(i,j).value())
+                        return true;
+                }
+                if(isLegal(i,j+1,size)&&(isEmpty(b.tile(i,j+1))==false)){
+                    if(b.tile(i,j+1).value()==b.tile(i,j).value())
+                        return true;
+                }
+            }
+        }
         return false;
+    }
+
+    public static boolean isEmpty(Tile t){
+        return t == null;
+    }
+    public static boolean isLegal(int col,int row,int size){
+        return col >= 0 && row >= 0 && col < size && row < size;
     }
 
 
     @Override
-     /** Returns the model as a string, used for debugging. */
+    /* Returns the model as a string, used for debugging. */
     public String toString() {
         Formatter out = new Formatter();
         out.format("%n[%n");

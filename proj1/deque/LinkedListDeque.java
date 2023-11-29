@@ -69,7 +69,7 @@ public class LinkedListDeque<Item> {
     }
 
     public Item removeLast(){
-        if(size ==0) return null;
+        if(size == 0) return null;
 
         InternalNode tmp = sentinel.pre.pre;
         Item ans = sentinel.pre.content;

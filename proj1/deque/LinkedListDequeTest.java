@@ -1,5 +1,6 @@
 package deque;
 
+import edu.princeton.cs.algs4.StdRandom;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -117,6 +118,60 @@ public class LinkedListDequeTest {
 
         for (double i = 999999; i > 500000; i--) {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
+        }
+    }
+    
+    @Test
+    public void randomizedTest() {
+        LinkedListDeque<Integer> L = new LinkedListDeque<>();
+        ArrayDeque<Integer> M = new ArrayDeque<>();
+        
+        int N = 1000000;
+        for(int i=0; i < N; i += 1){
+            int operationNumber = StdRandom.uniform(0, 7);
+            if(operationNumber == 0){
+                //addFirst
+                int randVal = StdRandom.uniform(0,100);
+                L.addFirst(randVal);
+                M.addFirst(randVal);
+            }else if (operationNumber == 1){
+                //addLast
+                int randVal = StdRandom.uniform(0, 100);
+                L.addLast(randVal);
+                M.addLast(randVal);
+            } else if (operationNumber == 2) {
+                //isEmpty
+                boolean ans1 = L.isEmpty();
+                boolean ans2 = M.isEmpty();
+                assertEquals(ans1,ans2);
+            } else if (operationNumber == 3) {
+                //size
+                int ans1 = L.size();
+                int ans2 = M.size();
+                assertEquals(ans1,ans2);
+            } else if (operationNumber == 4) {
+                //removeFirst
+                int ans1 = L.removeFirst();
+                int ans2 = M.removeFirst();
+                assertEquals(ans1,ans2);
+            } else if (operationNumber == 5) {
+                //removeLast
+                int ans1 = L.removeLast();
+                int ans2 = M.removeLast();
+                assertEquals(ans1, ans2);
+            } else if (operationNumber == 6) {
+                //get
+                int tmp1 = StdRandom.uniform(0,2);
+                int tmp2 = StdRandom.uniform(0,100);
+                int ans1;
+                int ans2 = M.get(tmp2);
+                if(tmp1 == 0){
+                    ans1 = L.getRecursive(tmp2);
+                }else {
+                    ans1 = L.get(tmp2);
+                }
+                assertEquals(ans1, ans2);
+            }
         }
     }
 }

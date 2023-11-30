@@ -7,7 +7,7 @@ public class ArrayDeque<Item> {
     private int size;
     private int capacity;
 
-    public ArrayDeque(){
+    public ArrayDeque() {
         array = (Item []) new Object[8];
         first = 3;
         last = 4;
@@ -15,26 +15,31 @@ public class ArrayDeque<Item> {
         capacity = 8;
     }
 
-    private void bigSize(int newcapacity){
+    private void bigSize(int newcapacity) {
         Item[] newarray = (Item[]) new Object[newcapacity];
 
-        System.arraycopy(array,0,newarray,0,last);
-        System.arraycopy(array,last,newarray,newcapacity-capacity+last,capacity-last);
+        System.arraycopy(array, 0, newarray, 0, last);
+        System.arraycopy(array, last, newarray, newcapacity - capacity + last, capacity - last);
 
         first = newcapacity - capacity + last - 1;
         capacity = newcapacity;
         array = newarray;
     }
 
-    private void smallSize(int newcapacity){
+    private void smallSize(int newcapacity) {
         Item[] newarray = (Item[]) new Object[newcapacity];
 
         int start = lastForCycle(first);
         int end = firstForCycle(last);
-        System.arraycopy(array,start,newarray,0,end-start+1);
+        if(start < end) {
+            System.arraycopy(array, start, newarray, 0, end - start + 1);
+        } else {
+            System.arraycopy(array, start, newarray, 0, capacity - start);
+            System.arraycopy(array, 0, newarray, capacity - start, end + 1);
+        }
 
         first = newcapacity - 1;
-        last = end - start + 1;
+        last = (capacity + end - start + 1) % capacity;
         capacity = newcapacity;
         array = newarray;
     }
@@ -45,14 +50,14 @@ public class ArrayDeque<Item> {
         return i;
     }
 
-    private int lastForCycle(int i){
+    private int lastForCycle(int i) {
         i += 1;
         i = i % capacity;
         return i;
     }
 
-    public void addFirst(Item i){
-        if(size == capacity){
+    public void addFirst(Item i) {
+        if(size == capacity) {
             bigSize(capacity * 2);
         }
 
@@ -61,8 +66,8 @@ public class ArrayDeque<Item> {
         size += 1;
     }
 
-    public void addLast(Item i){
-        if(size == capacity){
+    public void addLast(Item i) {
+        if(size == capacity) {
             bigSize(capacity * 2);
         }
 
@@ -71,28 +76,30 @@ public class ArrayDeque<Item> {
         size += 1;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return size == 0;
     }
 
-    public int size(){
+    public int size() {
         return size;
     }
 
-    public void printDeque(){
+    public void printDeque() {
         int start = lastForCycle(first);
         int end = firstForCycle(last);
 
-        while (start != end){
+        while (start != end) {
             System.out.print(array[start] + " ");
             start = lastForCycle(start);
         }
         System.out.println();
     }
 
-    public Item removeFirst(){
+    public Item removeFirst() {
         if(size == 0) return null;
-        if(capacity >= 16 && size-1 < capacity/4) smallSize(capacity/2);
+        if(capacity >= 16 && size - 1 < capacity / 4) {
+            smallSize(capacity/2);
+        }
 
         first = lastForCycle(first);
         Item ans = array[first];
@@ -104,7 +111,9 @@ public class ArrayDeque<Item> {
 
     public Item removeLast(){
         if(size == 0) return null;
-        if(capacity >= 16 && size-1 < capacity/4) smallSize(capacity/2);
+        if(capacity >= 16 && size-1 < capacity/4) {
+            smallSize(capacity/2);
+        }
 
         last = firstForCycle(last);
         Item ans = array[last];
@@ -114,12 +123,12 @@ public class ArrayDeque<Item> {
         return ans;
     }
 
-    public Item get(int index){
-        if(index >= 0 && index <= size - 1){
+    public Item get(int index) {
+        if(index >= 0 && index <= size - 1) {
             int start = lastForCycle(first);
             int end = firstForCycle(last);
 
-            while(index != 0){
+            while(index != 0) {
                 start = lastForCycle(start);
                 index -= 1;
             }
@@ -128,13 +137,5 @@ public class ArrayDeque<Item> {
         }else {
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-         int first = 7;
-         int capacity = 8;
-         first -= 1;
-         first = (first + capacity) % capacity;
-        System.out.println(first);
     }
 }

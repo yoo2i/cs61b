@@ -123,11 +123,13 @@ public class LinkedListDequeTest {
     
     @Test
     public void randomizedTest() {
+        //随机测试该怎么写我不会喵，这么写只会报错
+        //改完了喵，把remove这种有返回值的且可能返回null的接收变量类型改成Integer就好啦，int不可以是null但是Integer可以喵
         LinkedListDeque<Integer> L = new LinkedListDeque<>();
         ArrayDeque<Integer> M = new ArrayDeque<>();
         
-        int N = 1000000;
-        for(int i=0; i < N; i += 1){
+        int N = 1000000000;
+        for(int i = 0; i < N; i += 1) {
             int operationNumber = StdRandom.uniform(0, 7);
             if(operationNumber == 0){
                 //addFirst
@@ -151,20 +153,20 @@ public class LinkedListDequeTest {
                 assertEquals(ans1,ans2);
             } else if (operationNumber == 4) {
                 //removeFirst
-                int ans1 = L.removeFirst();
-                int ans2 = M.removeFirst();
+                Integer ans1 = L.removeFirst();
+                Integer ans2 = M.removeFirst();
                 assertEquals(ans1,ans2);
             } else if (operationNumber == 5) {
                 //removeLast
-                int ans1 = L.removeLast();
-                int ans2 = M.removeLast();
+                Integer ans1 = L.removeLast();
+                Integer ans2 = M.removeLast();
                 assertEquals(ans1, ans2);
             } else if (operationNumber == 6) {
                 //get
                 int tmp1 = StdRandom.uniform(0,2);
                 int tmp2 = StdRandom.uniform(0,100);
-                int ans1;
-                int ans2 = M.get(tmp2);
+                Integer ans1;
+                Integer ans2 = M.get(tmp2);
                 if(tmp1 == 0){
                     ans1 = L.getRecursive(tmp2);
                 }else {

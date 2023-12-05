@@ -136,7 +136,7 @@ public class LinkedListDequeTest {
                 int randVal = StdRandom.uniform(0,100);
                 L.addFirst(randVal);
                 M.addFirst(randVal);
-            }else if (operationNumber == 1){
+            } else if (operationNumber == 1){
                 //addLast
                 int randVal = StdRandom.uniform(0, 100);
                 L.addLast(randVal);
@@ -167,9 +167,9 @@ public class LinkedListDequeTest {
                 int tmp2 = StdRandom.uniform(0,100);
                 Integer ans1;
                 Integer ans2 = M.get(tmp2);
-                if(tmp1 == 0){
+                if (tmp1 == 0) {
                     ans1 = L.getRecursive(tmp2);
-                }else {
+                } else {
                     ans1 = L.get(tmp2);
                 }
                 assertEquals(ans1, ans2);

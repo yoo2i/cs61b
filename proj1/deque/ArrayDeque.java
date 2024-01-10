@@ -8,7 +8,7 @@ public class ArrayDeque<Item> {
     private int capacity;
 
     public ArrayDeque() {
-        array = (Item []) new Object[8];
+        array = (Item[]) new Object[8];
         first = 3;
         last = 4;
         size = 0;
@@ -31,7 +31,7 @@ public class ArrayDeque<Item> {
 
         int start = lastForCycle(first);
         int end = firstForCycle(last);
-        if(start < end) {
+        if (start < end) {
             System.arraycopy(array, start, newarray, 0, end - start + 1);
         } else {
             System.arraycopy(array, start, newarray, 0, capacity - start);
@@ -57,7 +57,7 @@ public class ArrayDeque<Item> {
     }
 
     public void addFirst(Item i) {
-        if(size == capacity) {
+        if (size == capacity) {
             bigSize(capacity * 2);
         }
 
@@ -67,7 +67,7 @@ public class ArrayDeque<Item> {
     }
 
     public void addLast(Item i) {
-        if(size == capacity) {
+        if (size == capacity) {
             bigSize(capacity * 2);
         }
 
@@ -96,9 +96,11 @@ public class ArrayDeque<Item> {
     }
 
     public Item removeFirst() {
-        if(size == 0) return null;
-        if(capacity >= 16 && size - 1 < capacity / 4) {
-            smallSize(capacity/2);
+        if (size == 0) {
+            return null;
+        }
+        if (capacity >= 16 && size - 1 < capacity / 4) {
+            smallSize(capacity / 2);
         }
 
         first = lastForCycle(first);
@@ -109,10 +111,12 @@ public class ArrayDeque<Item> {
         return ans;
     }
 
-    public Item removeLast(){
-        if(size == 0) return null;
-        if(capacity >= 16 && size-1 < capacity/4) {
-            smallSize(capacity/2);
+    public Item removeLast() {
+        if (size == 0) {
+            return null;
+        }
+        if (capacity >= 16 && size - 1 < capacity / 4) {
+            smallSize(capacity / 2);
         }
 
         last = firstForCycle(last);
@@ -124,17 +128,17 @@ public class ArrayDeque<Item> {
     }
 
     public Item get(int index) {
-        if(index >= 0 && index <= size - 1) {
+        if (index >= 0 && index <= size - 1) {
             int start = lastForCycle(first);
             int end = firstForCycle(last);
 
-            while(index != 0) {
+            while (index != 0) {
                 start = lastForCycle(start);
                 index -= 1;
             }
 
             return array[start];
-        }else {
+        } else {
             return null;
         }
     }

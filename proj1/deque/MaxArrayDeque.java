@@ -19,7 +19,7 @@ public class MaxArrayDeque<Item> extends ArrayDeque<Item> {
             Item answer = super.get(0);
 
             for (int i = 1; i <= size - 1; i++) {
-                if (comparator.compare(answer, get(i)) > 0) {
+                if (comparator.compare(answer, get(i)) < 0) {
                     answer = get(i);
                 }
             }
@@ -37,7 +37,7 @@ public class MaxArrayDeque<Item> extends ArrayDeque<Item> {
             Item answer = super.get(0);
 
             for (int i = 1; i <= size - 1; i++) {
-                if (c.compare(answer, get(i)) > 0) {
+                if (c.compare(answer, get(i)) < 0) {
                     answer = get(i);
                 }
             }

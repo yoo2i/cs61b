@@ -1,12 +1,14 @@
 package deque;
 
-public class LinkedListDeque<Item> {
+import java.util.Iterator;
+
+public class LinkedListDeque<Item> implements Iterable<Item> {
     private class InternalNode {
         public Item content;
         public InternalNode pre;
         public InternalNode next;
 
-        public InternalNode(Item i,InternalNode pre,InternalNode next) {
+        public InternalNode(Item i, InternalNode pre, InternalNode next) {
             this.content = i;
             this.pre = pre;
             this.next = next;
@@ -16,7 +18,7 @@ public class LinkedListDeque<Item> {
     private int size;
 
     public LinkedListDeque() {
-        sentinel = new InternalNode(null,null,null);
+        sentinel = new InternalNode(null, null, null);
         sentinel.next = sentinel;
         sentinel.pre = sentinel;
         size = 0;
@@ -24,7 +26,7 @@ public class LinkedListDeque<Item> {
 
     public void addFirst(Item i) {
         InternalNode tmp = sentinel.next;
-        InternalNode ans = new InternalNode(i,sentinel,tmp);
+        InternalNode ans = new InternalNode(i, sentinel, tmp);
         sentinel.next = ans;
         tmp.pre = ans;
         size += 1;
@@ -32,9 +34,9 @@ public class LinkedListDeque<Item> {
 
     public void addLast(Item i) {
         InternalNode tmp = sentinel.pre;
-        InternalNode ans = new InternalNode(i,tmp,sentinel);
+        InternalNode ans = new InternalNode(i, tmp, sentinel);
         tmp.next = ans;
-        sentinel.pre =ans;
+        sentinel.pre = ans;
         size += 1;
     }
 
@@ -49,14 +51,14 @@ public class LinkedListDeque<Item> {
     public void printDeque() {
         InternalNode tmp = sentinel.next;
         while (tmp != sentinel) {
-            System.out.print(tmp.content+" ");
+            System.out.print(tmp.content + " ");
             tmp = tmp.next;
         }
         System.out.println();
     }
 
     public Item removeFirst() {
-        if(size == 0) {
+        if (size == 0) {
             return null;
         }
 
@@ -71,7 +73,7 @@ public class LinkedListDeque<Item> {
     }
 
     public Item removeLast() {
-        if(size == 0) {
+        if (size == 0) {
             return null;
         }
 
@@ -91,8 +93,10 @@ public class LinkedListDeque<Item> {
         }
         InternalNode tmp = sentinel.next;
 
-        while(index != 0) {
-            if (tmp == sentinel) return null;
+        while (index != 0) {
+            if (tmp == sentinel) {
+                return null;
+            }
             tmp = tmp.next;
             index -= 1;
         }
@@ -109,10 +113,53 @@ public class LinkedListDeque<Item> {
             return null;
         }
 
-        if(index == 0 || tmp == sentinel){
+        if (index == 0 || tmp == sentinel) {
             return tmp.content;
         }
 
         return getRecursive(index - 1, tmp.next);
+    }
+
+    private class LinkedListDequeIterator implements Iterator<Item> {
+        private int pos;
+
+        public LinkedListDequeIterator() {
+            pos = 0;
+        }
+
+        public boolean hasNext() {
+            return pos < size;
+        }
+
+        public Item next() {
+            Item returnItem = get(pos);
+            pos += 1;
+            return returnItem;
+        }
+    }
+    public Iterator<Item> iterator() {
+        return new LinkedListDequeIterator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof LinkedListDeque test) {
+            if (this.size() == test.size()) {
+                for (int pos = 0; pos < size; pos++) {
+                    Item param1 = get(pos);
+                    Object param2 = test.get(pos);
+                    if (!param1.equals(param2)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

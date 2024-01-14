@@ -1,6 +1,8 @@
 package deque;
 
-public class ArrayDeque<Item> {
+import java.util.Iterator;
+
+public class ArrayDeque<Item> implements Iterable<Item> {
     private Item[] array;
     private int first;
     private int last;
@@ -130,7 +132,6 @@ public class ArrayDeque<Item> {
     public Item get(int index) {
         if (index >= 0 && index <= size - 1) {
             int start = lastForCycle(first);
-            int end = firstForCycle(last);
 
             while (index != 0) {
                 start = lastForCycle(start);
@@ -141,5 +142,48 @@ public class ArrayDeque<Item> {
         } else {
             return null;
         }
+    }
+
+    private class ArrayDequeIterator implements Iterator<Item> {
+        private int pos;
+
+        public ArrayDequeIterator() {
+            pos = 0;
+        }
+
+        public boolean hasNext() {
+            return pos < size;
+        }
+
+        public Item next() {
+            Item returnItem = get(pos);
+            pos += 1;
+            return returnItem;
+        }
+    }
+    public Iterator<Item> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof ArrayDeque test) {
+            if (this.size() == test.size()) {
+                for (int pos = 0; pos < size; pos++) {
+                    Item param1 = get(pos);
+                    Object param2 = test.get(pos);
+                    if (!param1.equals(param2)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

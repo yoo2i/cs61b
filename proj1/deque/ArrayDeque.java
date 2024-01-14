@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Item> implements Iterable<Item> {
+public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     private Item[] array;
     private int first;
     private int last;
@@ -58,6 +58,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         return i;
     }
 
+    @Override
     public void addFirst(Item i) {
         if (size == capacity) {
             bigSize(capacity * 2);
@@ -68,6 +69,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         size += 1;
     }
 
+    @Override
     public void addLast(Item i) {
         if (size == capacity) {
             bigSize(capacity * 2);
@@ -78,14 +80,12 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         size += 1;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         int start = lastForCycle(first);
         int end = firstForCycle(last);
@@ -97,6 +97,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         System.out.println();
     }
 
+    @Override
     public Item removeFirst() {
         if (size == 0) {
             return null;
@@ -113,6 +114,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         return ans;
     }
 
+    @Override
     public Item removeLast() {
         if (size == 0) {
             return null;
@@ -129,6 +131,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
         return ans;
     }
 
+    @Override
     public Item get(int index) {
         if (index >= 0 && index <= size - 1) {
             int start = lastForCycle(first);
@@ -161,6 +164,7 @@ public class ArrayDeque<Item> implements Iterable<Item> {
             return returnItem;
         }
     }
+    @Override
     public Iterator<Item> iterator() {
         return new ArrayDequeIterator();
     }

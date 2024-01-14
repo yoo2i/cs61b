@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<Item> implements Iterable<Item> {
+public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     private class InternalNode {
         public Item content;
         public InternalNode pre;
@@ -24,6 +24,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         size = 0;
     }
 
+    @Override
     public void addFirst(Item i) {
         InternalNode tmp = sentinel.next;
         InternalNode ans = new InternalNode(i, sentinel, tmp);
@@ -32,6 +33,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         size += 1;
     }
 
+    @Override
     public void addLast(Item i) {
         InternalNode tmp = sentinel.pre;
         InternalNode ans = new InternalNode(i, tmp, sentinel);
@@ -40,14 +42,12 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         size += 1;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         InternalNode tmp = sentinel.next;
         while (tmp != sentinel) {
@@ -57,6 +57,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         System.out.println();
     }
 
+    @Override
     public Item removeFirst() {
         if (size == 0) {
             return null;
@@ -72,6 +73,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         return ans;
     }
 
+    @Override
     public Item removeLast() {
         if (size == 0) {
             return null;
@@ -87,6 +89,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
         return ans;
     }
 
+    @Override
     public Item get(int index) {
         if (index < 0) {
             return null;
@@ -137,6 +140,7 @@ public class LinkedListDeque<Item> implements Iterable<Item> {
             return returnItem;
         }
     }
+    @Override
     public Iterator<Item> iterator() {
         return new LinkedListDequeIterator();
     }

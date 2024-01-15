@@ -175,7 +175,8 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
             return true;
         }
 
-        if (o instanceof ArrayDeque test) {
+        if (o instanceof ArrayDeque) {
+            ArrayDeque test = (ArrayDeque) o;
             if (this.size() == test.size()) {
                 for (int pos = 0; pos < size; pos++) {
                     Item param1 = get(pos);

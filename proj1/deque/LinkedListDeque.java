@@ -151,7 +151,8 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
             return true;
         }
 
-        if (o instanceof LinkedListDeque test) {
+        if (o instanceof LinkedListDeque) {
+            LinkedListDeque test = (LinkedListDeque) o;
             if (this.size() == test.size()) {
                 for (int pos = 0; pos < size; pos++) {
                     Item param1 = get(pos);

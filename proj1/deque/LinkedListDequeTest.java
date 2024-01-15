@@ -176,4 +176,17 @@ public class LinkedListDequeTest {
             }
         }
     }
+
+    @Test
+    public void testEqual() {
+        LinkedListDeque<Integer> tmp1 = new LinkedListDeque<>();
+        ArrayDeque<Integer> tmp2 = new ArrayDeque<>();
+
+        tmp1.addLast(1);
+        tmp2.addLast(1);
+        tmp1.addFirst(3);
+        tmp2.addFirst(3);
+
+        assertTrue(tmp1.equals(tmp2));
+    }
 }

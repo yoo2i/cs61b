@@ -1,6 +1,5 @@
 package deque;
 
-import java.util.ArrayDeque;
 import java.util.Iterator;
 
 public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
@@ -165,8 +164,8 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
                 return true;
             }
             return false;
-        } else if (o instanceof deque.ArrayDeque) {
-            deque.ArrayDeque test = (deque.ArrayDeque) o;
+        } else if (o instanceof ArrayDeque) {
+            ArrayDeque test = (ArrayDeque) o;
             if (this.size() == test.size()) {
                 for (int pos = 0; pos < size; pos++) {
                     T param1 = get(pos);

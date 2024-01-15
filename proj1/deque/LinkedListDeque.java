@@ -1,14 +1,15 @@
 package deque;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
 
-public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     private class InternalNode {
-        public Item content;
-        public InternalNode pre;
-        public InternalNode next;
+        private T content;
+        private InternalNode pre;
+        private InternalNode next;
 
-        public InternalNode(Item i, InternalNode pre, InternalNode next) {
+        InternalNode(T i, InternalNode pre, InternalNode next) {
             this.content = i;
             this.pre = pre;
             this.next = next;
@@ -25,7 +26,7 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public void addFirst(Item i) {
+    public void addFirst(T i) {
         InternalNode tmp = sentinel.next;
         InternalNode ans = new InternalNode(i, sentinel, tmp);
         sentinel.next = ans;
@@ -34,7 +35,7 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public void addLast(Item i) {
+    public void addLast(T i) {
         InternalNode tmp = sentinel.pre;
         InternalNode ans = new InternalNode(i, tmp, sentinel);
         tmp.next = ans;
@@ -58,13 +59,13 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         }
 
         InternalNode tmp = sentinel.next.next;
-        Item ans = sentinel.next.content;
+        T ans = sentinel.next.content;
 
         sentinel.next = tmp;
         tmp.pre = sentinel;
@@ -74,13 +75,13 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
 
         InternalNode tmp = sentinel.pre.pre;
-        Item ans = sentinel.pre.content;
+        T ans = sentinel.pre.content;
 
         tmp.next = sentinel;
         sentinel.pre = tmp;
@@ -90,7 +91,7 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item get(int index) {
+    public T get(int index) {
         if (index < 0) {
             return null;
         }
@@ -107,11 +108,11 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
         return tmp.content;
     }
 
-    public Item getRecursive(int index) {
+    public T getRecursive(int index) {
         return getRecursive(index, sentinel.next);
     }
 
-    private Item getRecursive(int index, InternalNode tmp) {
+    private T getRecursive(int index, InternalNode tmp) {
         if (index < 0) {
             return null;
         }
@@ -123,10 +124,10 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
         return getRecursive(index - 1, tmp.next);
     }
 
-    private class LinkedListDequeIterator implements Iterator<Item> {
+    private class LinkedListDequeIterator implements Iterator<T> {
         private int pos;
 
-        public LinkedListDequeIterator() {
+        LinkedListDequeIterator() {
             pos = 0;
         }
 
@@ -134,14 +135,14 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
             return pos < size;
         }
 
-        public Item next() {
-            Item returnItem = get(pos);
+        public T next() {
+            T returnT = get(pos);
             pos += 1;
-            return returnItem;
+            return returnT;
         }
     }
     @Override
-    public Iterator<Item> iterator() {
+    public Iterator<T> iterator() {
         return new LinkedListDequeIterator();
     }
 
@@ -155,7 +156,20 @@ public class LinkedListDeque<Item> implements Iterable<Item>, Deque<Item> {
             LinkedListDeque test = (LinkedListDeque) o;
             if (this.size() == test.size()) {
                 for (int pos = 0; pos < size; pos++) {
-                    Item param1 = get(pos);
+                    T param1 = get(pos);
+                    Object param2 = test.get(pos);
+                    if (!param1.equals(param2)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        } else if (o instanceof deque.ArrayDeque) {
+            deque.ArrayDeque test = (deque.ArrayDeque) o;
+            if (this.size() == test.size()) {
+                for (int pos = 0; pos < size; pos++) {
+                    T param1 = get(pos);
                     Object param2 = test.get(pos);
                     if (!param1.equals(param2)) {
                         return false;

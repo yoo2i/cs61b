@@ -2,15 +2,15 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
-    private Item[] array;
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
+    private T[] array;
     private int first;
     private int last;
     private int size;
     private int capacity;
 
     public ArrayDeque() {
-        array = (Item[]) new Object[8];
+        array = (T[]) new Object[8];
         first = 3;
         last = 4;
         size = 0;
@@ -18,7 +18,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     private void bigSize(int newcapacity) {
-        Item[] newarray = (Item[]) new Object[newcapacity];
+        T[] newarray = (T[]) new Object[newcapacity];
 
         System.arraycopy(array, 0, newarray, 0, last);
         System.arraycopy(array, last, newarray, newcapacity - capacity + last, capacity - last);
@@ -29,7 +29,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     private void smallSize(int newcapacity) {
-        Item[] newarray = (Item[]) new Object[newcapacity];
+        T[] newarray = (T[]) new Object[newcapacity];
 
         int start = lastForCycle(first);
         int end = firstForCycle(last);
@@ -59,7 +59,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public void addFirst(Item i) {
+    public void addFirst(T i) {
         if (size == capacity) {
             bigSize(capacity * 2);
         }
@@ -70,7 +70,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public void addLast(Item i) {
+    public void addLast(T i) {
         if (size == capacity) {
             bigSize(capacity * 2);
         }
@@ -98,7 +98,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         }
@@ -107,7 +107,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
         }
 
         first = lastForCycle(first);
-        Item ans = array[first];
+        T ans = array[first];
         array[first] = null;
         size -= 1;
 
@@ -115,7 +115,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         }
@@ -124,7 +124,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
         }
 
         last = firstForCycle(last);
-        Item ans = array[last];
+        T ans = array[last];
         array[last] = null;
         size -= 1;
 
@@ -132,7 +132,7 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
     }
 
     @Override
-    public Item get(int index) {
+    public T get(int index) {
         if (index >= 0 && index <= size - 1) {
             int start = lastForCycle(first);
 
@@ -147,10 +147,10 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
         }
     }
 
-    private class ArrayDequeIterator implements Iterator<Item> {
+    private class ArrayDequeIterator implements Iterator<T> {
         private int pos;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             pos = 0;
         }
 
@@ -158,14 +158,14 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
             return pos < size;
         }
 
-        public Item next() {
-            Item returnItem = get(pos);
+        public T next() {
+            T returnT = get(pos);
             pos += 1;
-            return returnItem;
+            return returnT;
         }
     }
     @Override
-    public Iterator<Item> iterator() {
+    public Iterator<T> iterator() {
         return new ArrayDequeIterator();
     }
 
@@ -179,7 +179,20 @@ public class ArrayDeque<Item> implements Iterable<Item>, Deque<Item> {
             ArrayDeque test = (ArrayDeque) o;
             if (this.size() == test.size()) {
                 for (int pos = 0; pos < size; pos++) {
-                    Item param1 = get(pos);
+                    T param1 = get(pos);
+                    Object param2 = test.get(pos);
+                    if (!param1.equals(param2)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
+        } else if (o instanceof deque.LinkedListDeque) {
+            deque.LinkedListDeque test = (deque.LinkedListDeque) o;
+            if (this.size() == test.size()) {
+                for (int pos = 0; pos < size; pos++) {
+                    T param1 = get(pos);
                     Object param2 = test.get(pos);
                     if (!param1.equals(param2)) {
                         return false;

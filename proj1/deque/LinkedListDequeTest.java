@@ -190,7 +190,13 @@ public class LinkedListDequeTest {
         LinkedListDeque<Integer> tmp1 = new LinkedListDeque<>();
         ArrayDeque<Integer> tmp2 = new ArrayDeque<>();
 
-
+        tmp1.addFirst(1);
+        tmp2.addFirst(1);
+        tmp1.addFirst(3);
+        tmp2.addFirst(3);
+        tmp1.addLast(5);
+        //tmp2.addLast(5);
         assertTrue(tmp1.equals(tmp2));
+        assertTrue(tmp2.equals(tmp1));
     }
 }

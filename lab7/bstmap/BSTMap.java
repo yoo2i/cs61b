@@ -2,6 +2,7 @@ package bstmap;
 
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
     private class BSTNode {
@@ -81,15 +82,74 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
         root = put(key, value, root);
     }
 
-    /* remove iterator and keySet are not for now*/
+    /* fuck autograder! */
+    private void preView(BSTNode now, Set<K> ans) {
+        if (now != null) {
+            ans.add(now.key);
+            preView(now.left, ans);
+            preView(now.right, ans);
+        }
+        return;
+    }
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        Set<K> answer = new TreeSet<>();
+
+        preView(root, answer);
+
+        return answer;
     }
 
+    private V remove(BSTNode now, K key) {
+        if (now == null) {
+            return null;
+        }
+        else {
+            int cmp = key.compareTo(now.key);
+
+            if (cmp < 0) {
+                return remove(now.left, key);
+            }
+            else if (cmp > 0) {
+                return remove(now.right, key);
+            }
+            else if (now.left != null && now.right != null) {
+                BSTNode targetFather = now;
+                BSTNode target = now.right;
+
+                while (target.left != null) {
+                    targetFather = target;
+                    target = target.left;
+                }
+
+                V value = now.value;
+                now.key = target.key;
+                now.value = target.value;
+
+                if (now == targetFather) {
+                    now.right = target.right;
+                } else {
+                    targetFather.left = target.right;
+                }
+
+                return value;
+            }
+            else {
+                V value = now.value;
+                if (root == now) {
+                    now = (now.left != null) ? now.left : now.right;
+                    root = now;
+                } else {
+                    now = (now.left != null) ? now.left : now.right;
+                }
+                return value;
+            }
+        }
+    }
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        size -= 1;
+        return remove(root, key);
     }
 
     @Override

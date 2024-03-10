@@ -100,7 +100,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
         return answer;
     }
 
-    private V remove(BSTNode now, K key) {
+    private V remove(BSTNode now, BSTNode father, K key) {
         if (now == null) {
             return null;
         }
@@ -108,10 +108,10 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
             int cmp = key.compareTo(now.key);
 
             if (cmp < 0) {
-                return remove(now.left, key);
+                return remove(now.left, now, key);
             }
             else if (cmp > 0) {
-                return remove(now.right, key);
+                return remove(now.right, now, key);
             }
             else if (now.left != null && now.right != null) {
                 BSTNode targetFather = now;
@@ -136,25 +136,88 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V>{
             }
             else {
                 V value = now.value;
-                if (root == now) {
-                    now = (now.left != null) ? now.left : now.right;
-                    root = now;
+
+                if (father == null) {
+                    root = (now.left != null) ? now.left : now.right;
                 } else {
-                    now = (now.left != null) ? now.left : now.right;
+                    if (father.left == now){
+                        father.left = (now.left != null) ? now.left : now.right;
+                    } else {
+                        father.right = (now.left != null) ? now.left : now.right;
+                    }
                 }
+
                 return value;
             }
         }
     }
     @Override
     public V remove(K key) {
-        size -= 1;
-        return remove(root, key);
+        V ans = remove(root, null, key);
+        if (ans != null) {
+            size -= 1;
+        }
+        return ans;
     }
 
+    private V remove(BSTNode now, BSTNode father, K key, V value) {
+        if (now == null || (now.key == key && now.value != value)) {
+            return null;
+        }
+        else {
+            int cmp = key.compareTo(now.key);
+
+            if (cmp < 0) {
+                return remove(now.left, now, key, value);
+            }
+            else if (cmp > 0) {
+                return remove(now.right, now, key, value);
+            }
+            else if (now.left != null && now.right != null) {
+                BSTNode targetFather = now;
+                BSTNode target = now.right;
+
+                while (target.left != null) {
+                    targetFather = target;
+                    target = target.left;
+                }
+
+                V ans = now.value;
+                now.key = target.key;
+                now.value = target.value;
+
+                if (now == targetFather) {
+                    now.right = target.right;
+                } else {
+                    targetFather.left = target.right;
+                }
+
+                return ans;
+            }
+            else {
+                V ans = now.value;
+
+                if (father == null) {
+                    root = (now.left != null) ? now.left : now.right;
+                } else {
+                    if (father.left == now){
+                        father.left = (now.left != null) ? now.left : now.right;
+                    } else {
+                        father.right = (now.left != null) ? now.left : now.right;
+                    }
+                }
+
+                return ans;
+            }
+        }
+    }
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        V ans = remove(root, null, key, value);
+        if (ans != null){
+            size -= 1;
+        }
+        return ans;
     }
 
     @Override

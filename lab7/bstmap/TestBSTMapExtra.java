@@ -112,5 +112,34 @@ public class TestBSTMapExtra {
         assertEquals(0, noChild.size());
         assertEquals(null, noChild.get('Z'));
     }
+    @Test
+    public void testRemove2RootEdge() {
+        BSTMap rightChild = new BSTMap();
+        rightChild.put('A', 1);
+        rightChild.put('B', 2);
+        Integer result = (Integer) rightChild.remove('A', 1);
+        assertTrue(result.equals(new Integer(1)));
+        for (int i = 0; i < 10; i++) {
+            rightChild.put((char) ('C'+i), 3+i);
+        }
+        rightChild.put('A', 100);
+        assertTrue(((Integer) rightChild.remove('D', 4)).equals(new Integer(4)));
+        assertTrue(((Integer) rightChild.remove('G', 7)).equals(new Integer(7)));
+        assertTrue(((Integer) rightChild.remove('A', 100)).equals(new Integer(100)));
+        assertTrue(rightChild.size()==9);
+
+        BSTMap leftChild = new BSTMap();
+        leftChild.put('B', 1);
+        leftChild.put('A', 2);
+        assertTrue(((Integer) leftChild.remove('B', 1)).equals(1));
+        assertEquals(1, leftChild.size());
+        assertEquals(null, leftChild.get('B'));
+
+        BSTMap noChild = new BSTMap();
+        noChild.put('Z', 15);
+        assertTrue(((Integer) noChild.remove('Z', 15)).equals(15));
+        assertEquals(0, noChild.size());
+        assertEquals(null, noChild.get('Z'));
+    }
 
 }

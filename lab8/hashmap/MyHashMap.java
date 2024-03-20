@@ -31,8 +31,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     private Set<K> keySet;
     private final int initialSize;
     private final double loadFactor;//float会报错
-    private int num;
-    private int bnum;
+    private int itemNum;
+    private int bucketNum;
 
     /** Constructors */
     public MyHashMap() {
@@ -42,8 +42,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         buckets = createTable(initialSize);
         keySet = new HashSet<>();
 
-        num = 0;
-        bnum = initialSize;
+        itemNum = 0;
+        bucketNum = initialSize;
     }
 
     public MyHashMap(int initialSize) {
@@ -53,8 +53,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         buckets = createTable(initialSize);
         keySet = new HashSet<>();
 
-        num = 0;
-        bnum = initialSize;
+        itemNum = 0;
+        bucketNum = initialSize;
     }
 
     /**
@@ -71,8 +71,8 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         buckets = createTable(initialSize);
         keySet = new HashSet<>();
 
-        num = 0;
-        bnum = initialSize;
+        itemNum = 0;
+        bucketNum = initialSize;
     }
 
     /**
@@ -126,22 +126,33 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     // TODO: Implement the methods of the Map61B Interface below
     // Your code won't compile until you do so!
 
+    private int getIndex(K key) {
+        int hash = key.hashCode();
+        return Math.floorMod(hash, bucketNum);
+    }
+
+    private void maxBuckets() {
+        MyHashMap<K, V> newMyHashMap = new MyHashMap<>(bucketNum * 2, this.loadFactor);
+
+        for (K key : keySet) {
+            newMyHashMap.put(key, get(key));
+        }
+
+        buckets = newMyHashMap.buckets;
+        bucketNum = newMyHashMap.bucketNum;
+    }
+
     @Override
     public void clear() {
-        buckets = null;
-        keySet = null;
-        num = 0;
-        bnum = initialSize;
+        buckets = createTable(initialSize);
+        keySet.clear();
+        itemNum = 0;
+        bucketNum = initialSize;
     }
 
     @Override
     public boolean containsKey(K key) {
         return keySet.contains(key);
-    }
-
-    private int getIndex(K key) {
-        int hash = key.hashCode();
-        return Math.floorMod(hash, bnum);
     }
 
     @Override
@@ -159,27 +170,35 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public int size() {
-        return num;
-    }
-
-    private void maxBuckets() {
-
+        return itemNum;
     }
 
     @Override
     public void put(K key, V value) {
         Node node = createNode(key, value);
+        int index = getIndex(key);
 
-        if (((num + 1) / (double) bnum) > loadFactor) {
-            maxBuckets();
+        if (containsKey(key)) {
+            for (Node tmp : buckets[index]) {
+                if (key.equals(tmp.key)) {
+                    tmp.value = value;
+                    return;
+                }
+            }
+        } else {
+            buckets[index].add(node);
+            itemNum += 1;
+            keySet.add(key);
+
+            if ((double) itemNum / bucketNum > loadFactor) {
+                maxBuckets();
+            }
         }
-
-        int index = getIndex()
     }
 
     @Override
     public Set<K> keySet() {
-        return null;
+        return keySet;
     }
 
     @Override
@@ -194,7 +213,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public Iterator<K> iterator() {
-        return null;
+        return keySet.iterator();
     }
 
 }

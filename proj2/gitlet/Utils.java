@@ -28,6 +28,27 @@ import java.util.List;
  */
 class Utils {
 
+    /*转化为字节数组从而调用sha1*/
+    static byte[] getByteArray(Object obj) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos;
+        try {
+            oos = new ObjectOutputStream(bos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            oos.writeObject(obj);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return bos.toByteArray();
+    }
+    static String calHash(Object obj) {
+        byte[] bytes = getByteArray(obj);
+        return sha1(bytes);
+    }
+
     /** The length of a complete SHA-1 UID as a hexadecimal numeral. */
     static final int UID_LENGTH = 40;
 
@@ -235,5 +256,10 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    static void exitWithMessage(String msg) {
+        message(msg);
+        System.exit(0);
     }
 }

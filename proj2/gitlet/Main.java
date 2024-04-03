@@ -38,6 +38,13 @@ public class Main {
 
             case "log":
                 //TODO:3
+                judgeTheNumberOrFormatOfOperands(args, 1);
+                Repository.log();
+                break;
+
+            case "global-log":
+                judgeTheNumberOrFormatOfOperands(args, 1);
+                Repository.globalLog();
                 break;
 
             default:

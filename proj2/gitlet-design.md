@@ -48,6 +48,7 @@
 - firstParent，提交树上的父commit
 - secondParent，merge情况下的另一个父commit
 - blobs，Map类型，fileName -> fileHash，维护本提交的各个文件版本信息。
+- hash
 
 --------------------------------------
 
@@ -68,6 +69,7 @@
 #### Fields
 
 - content，字节数组，用来保存文件内容。
+- hash
 
 --------------------------------------------
 

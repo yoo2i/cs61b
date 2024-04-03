@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static gitlet.Utils.*;
@@ -71,7 +72,7 @@ public class Repository {
         Stage stageArea = new Stage();
         Commit commit = new Commit();
 
-        String hash = Utils.calHash(commit);
+        String hash = commit.calHash();
         File commitFile = join(COMMITS_DIR, hash);
         try {
             commitFile.createNewFile();
@@ -108,7 +109,7 @@ public class Repository {
         if (!commit.existSameFile(fileName, fileHash)) {
             stageArea.addFileInAddition(fileName, fileHash);
 
-            Blob blob = new Blob(readContents(addFile));
+            Blob blob = new Blob(readContents(addFile), fileHash);
             File file = join(STAGE_DIR, fileHash);
             try {
                 file.createNewFile();
@@ -144,7 +145,7 @@ public class Repository {
         stageArea.clear();
         stageArea.save();
 
-        String hash = calHash(sonCommit);
+        String hash = sonCommit.calHash();
         writeContents(HEAD_FILE, hash);
 
         File commitFile = join(COMMITS_DIR, hash);
@@ -183,6 +184,29 @@ public class Repository {
 
         if (flag == 0) {
             Utils.exitWithMessage("No reason to remove the file.");
+        }
+    }
+
+    public static void log() {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        String tmp = readContentsAsString(HEAD_FILE);
+        while (tmp != null) {
+            Commit commit = Commit.load(tmp);
+
+            System.out.println(commit);
+
+            tmp = commit.getDad();
+        }
+    }
+
+    public static void globalLog() {
+        List<String> commitNameList = plainFilenamesIn(COMMITS_DIR);
+        for(String name : commitNameList) {
+            Commit commit = Commit.load(name);
+            System.out.println(commit);
         }
     }
 }

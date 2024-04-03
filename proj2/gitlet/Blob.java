@@ -5,9 +5,11 @@ import java.io.Serializable;
 
 public class Blob implements Serializable {
     private byte[] content;
+    private String hash;
 
-    public Blob(byte[] content) {
+    public Blob(byte[] content, String hash) {
         this.content = content;
+        this.hash = hash;
     }
 
     public void save(File file) {
@@ -18,4 +20,14 @@ public class Blob implements Serializable {
         File target = Utils.join(Repository.STAGE_DIR, fileHash);
         target.delete();
     }
+
+    public String calHash() {
+        String answer = Utils.sha1(content);
+        this.hash = answer;
+        return answer;
+    }
+
+    /*public void saveHash(String hash) {
+        this.hash = hash;
+    }*/
 }

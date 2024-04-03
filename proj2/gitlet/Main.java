@@ -26,11 +26,14 @@ public class Main {
                 break;
 
             case "commit":
-                // TODO:1
+                judgeTheNumberOrFormatOfOperands(args, 2);
+                Repository.commit(args[1]);
                 break;
 
-            case "checkout":
+            case "rm":
                 // TODO:2
+                judgeTheNumberOrFormatOfOperands(args, 2);
+                Repository.rm(args[1]);
                 break;
 
             case "log":

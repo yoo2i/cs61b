@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.Serializable;
 
 public class Blob implements Serializable {
-    private String hash;
     private byte[] content;
 
-    public Blob(String hash, byte[] content) {
-        this.hash = hash;
+    public Blob(byte[] content) {
         this.content = content;
+    }
+
+    public void save(File file) {
+        Utils.writeObject(file, this);
     }
 
     public static void remove(String fileHash) {

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import static gitlet.Utils.*;
 
@@ -32,7 +33,7 @@ public class Repository {
     public static final File STAGE_DIR = join(OBJECTS_DIR, "stage");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
-    public static final File INDEX_FILE = join(GITLET_DIR, "index");
+    public static final File STAGE_FILE = join(GITLET_DIR, "stage");
 
     /* TODO: fill in the rest of this class. */
 
@@ -50,7 +51,7 @@ public class Repository {
             throw new RuntimeException(e);
         }
         try {
-            INDEX_FILE.createNewFile();
+            STAGE_FILE.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -60,18 +61,6 @@ public class Repository {
         return GITLET_DIR.exists();
     }
 
-    public static void createBranch(String nameOfBranch, String hash) {
-        File newBranch = join(REFS_DIR, nameOfBranch);
-        if (!newBranch.exists()) {
-            try {
-                newBranch.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        writeContents(newBranch, hash);
-    }
-
     public static void init() {
         if (hadBeenInit()) {
             Utils.exitWithMessage("A Gitlet version-control system already exists in the current directory.");
@@ -79,7 +68,7 @@ public class Repository {
 
         initFilesAndDirs();
 
-        Index stageArea = new Index();
+        Stage stageArea = new Stage();
         Commit commit = new Commit();
 
         String hash = Utils.calHash(commit);
@@ -89,16 +78,16 @@ public class Repository {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        writeObject(commitFile, commit);
+        commit.save(commitFile);
 
-        writeObject(INDEX_FILE, stageArea);
+        stageArea.save();
 
         writeContents(HEAD_FILE, hash);
 
-        createBranch("master", hash);
+        Branch.createBranch("master", hash);
     }
 
-    public static void add(String fileName) {//还没有实现和rm相关的内容
+    public static void add(String fileName) {
         if (!hadBeenInit()) {
             Utils.exitWithMessage("Not in an initialized Gitlet directory.");
         }
@@ -108,25 +97,92 @@ public class Repository {
             Utils.exitWithMessage("File does not exist.");
         }
 
-        Index stageArea = readObject(INDEX_FILE, Index.class);
-        Commit commit = readObject(join(COMMITS_DIR, readContentsAsString(HEAD_FILE)), Commit.class);
+        Stage stageArea = Stage.load();
+        Commit commit = Commit.load();
         String fileHash = Utils.calHash(readContents(addFile));
 
-        if (stageArea.existTheFile(fileName)) {
+        if (stageArea.existFileInAddition(fileName)) {
             Blob.remove(fileHash);
-            stageArea.removeTheFile(fileName);
+            stageArea.removeFileInAddition(fileName);
         }
         if (!commit.existSameFile(fileName, fileHash)) {
-            stageArea.addFile(fileName, fileHash);
+            stageArea.addFileInAddition(fileName, fileHash);
 
-            Blob blob = new Blob(fileHash, readContents(addFile));
+            Blob blob = new Blob(readContents(addFile));
             File file = join(STAGE_DIR, fileHash);
             try {
                 file.createNewFile();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            writeObject(file, blob);
+
+            blob.save(file);
+        }
+
+        if (stageArea.exitFileInRemoval(fileName)) {
+            stageArea.removeFileInRemoval(fileName);
+        }
+        stageArea.save();
+    }
+
+    public static void commit(String message) {
+        Stage stageArea = Stage.load();
+        if (stageArea.getAddition().isEmpty()) {
+            exitWithMessage("No changes added to the commit.");
+        }
+        if (message.isEmpty()) {
+            exitWithMessage("Please enter a commit message.");
+        }
+        Commit sonCommit = new Commit(stageArea, message);
+
+        for (Map.Entry<String, String> entry : stageArea.getAddition().entrySet()) {
+            File oldFile = join(STAGE_DIR, entry.getValue());
+            File newFile = join(BLOBS_DIR, entry.getValue());
+            oldFile.renameTo(newFile);
+        }
+
+        stageArea.clear();
+        stageArea.save();
+
+        String hash = calHash(sonCommit);
+        writeContents(HEAD_FILE, hash);
+
+        File commitFile = join(COMMITS_DIR, hash);
+        try {
+            commitFile.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        sonCommit.save(commitFile);
+    }
+
+    public static void rm(String fileName) {
+        if (!hadBeenInit()) {
+            Utils.exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        Stage stageArea = Stage.load();
+        Commit commit = Commit.load();
+        int flag = 0;
+
+        if (stageArea.existFileInAddition(fileName)) {
+            flag = 1;
+            stageArea.removeFileInAddition(fileName);
+        }
+        if (commit.trackTheFile(fileName)) {
+            flag = 1;
+            stageArea.addFileInRemoval(fileName);
+
+            File file = join(CWD, fileName);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+
+        stageArea.save();
+
+        if (flag == 0) {
+            Utils.exitWithMessage("No reason to remove the file.");
         }
     }
 }

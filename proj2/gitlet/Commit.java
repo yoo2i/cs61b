@@ -2,10 +2,14 @@ package gitlet;
 
 // TODO: any imports you need here
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static gitlet.Utils.join;
+import static gitlet.Utils.readContentsAsString;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -38,6 +42,33 @@ public class Commit implements Serializable {
         blobs = new HashMap<>();
     }
 
+    public Commit(Stage stageArea, String message) {
+        Commit dadCommit = Commit.load();
+
+        this.timeStamp = new Date();
+        this.message = message;
+        this.firstParent = readContentsAsString(Repository.HEAD_FILE);
+        this.secondParent = null;
+        this.blobs = new HashMap<>(dadCommit.getTracks());
+
+        this.blobs.putAll(stageArea.getAddition());
+        for (String name : stageArea.getRemoval()) {
+            this.blobs.remove(name);
+        }
+    }
+
+    public static Commit load() {
+        return Utils.readObject(join(Repository.COMMITS_DIR, readContentsAsString(Repository.HEAD_FILE)), Commit.class);
+    }
+
+    public static Commit load(String fileHash) {
+        return Utils.readObject(join(Repository.COMMITS_DIR, fileHash), Commit.class);
+    }
+
+    public void save(File file) {
+        Utils.writeObject(file, this);
+    }
+
     public boolean existSameFile(String fileName, String fileHash) {
         if (blobs.containsKey(fileName)) {
             return blobs.get(fileName).equals(fileHash);
@@ -46,4 +77,11 @@ public class Commit implements Serializable {
         }
     }
 
+    public boolean trackTheFile(String fileName) {
+        return blobs.containsKey(fileName);
+    }
+
+    public Map<String, String> getTracks() {
+        return blobs;
+    }
 }

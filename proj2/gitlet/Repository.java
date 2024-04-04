@@ -203,10 +203,75 @@ public class Repository {
     }
 
     public static void globalLog() {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
         List<String> commitNameList = plainFilenamesIn(COMMITS_DIR);
         for(String name : commitNameList) {
             Commit commit = Commit.load(name);
             System.out.println(commit);
         }
+    }
+
+    public static void find(String message) {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        List<String> commitNameList = plainFilenamesIn(COMMITS_DIR);
+        int flag = 0;
+
+        for(String name : commitNameList) {
+            Commit commit = Commit.load(name);
+            if (message.equals(commit.getMessage())) {
+                flag = 1;
+                System.out.println(commit.getHash());
+            }
+        }
+
+        if (flag == 0) {
+            exitWithMessage("Found no commit with that message.");
+        }
+    }
+
+    public static String getCompleteCommitId(String fileHash) {
+        List<String> commitHashList = plainFilenamesIn(COMMITS_DIR);
+        for (String hash : commitHashList) {
+            if (hash.startsWith(fileHash)) {
+                return hash;
+            }
+        }
+        return null;
+    }
+    public static void checkoutForFile(String fileName) {
+        checkoutForFile(readContentsAsString(HEAD_FILE), fileName);
+    }
+    public static void checkoutForFile(String commitId, String fileName) {
+        commitId = getCompleteCommitId(commitId);
+        if (commitId == null) {
+            exitWithMessage("No commit with that id exists.");
+        }
+        Commit commit = Commit.load(commitId);
+
+        if (commit.trackTheFile(fileName)) {
+            String fileHash = commit.getFileHash(fileName);
+            byte[] content = Blob.load(fileHash).getContent();
+
+            File target = join(CWD, fileName);
+            if (!target.exists()) {
+                try {
+                    target.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            writeContents(target, content);
+        } else {
+            exitWithMessage("File does not exist in that commit.");
+        }
+    }
+    public static void checkoutForBranch(){
+
     }
 }

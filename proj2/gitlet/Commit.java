@@ -94,6 +94,18 @@ public class Commit implements Serializable {
         return firstParent;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public String getFileHash(String fileName) {
+        return blobs.get(fileName);
+    }
+
     @Override
     public String toString() {//还没实现merge相关的
         String startString = "==\n";

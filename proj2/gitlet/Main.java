@@ -15,36 +15,54 @@ public class Main {
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
-                judgeTheNumberOrFormatOfOperands(args, 1);
+                judgeTheNumber(args, 1);
                 Repository.init();
                 break;
 
             case "add":
                 // TODO: handle the `add [filename]` command
-                judgeTheNumberOrFormatOfOperands(args, 2);
+                judgeTheNumber(args, 2);
                 Repository.add(args[1]);
                 break;
 
             case "commit":
-                judgeTheNumberOrFormatOfOperands(args, 2);
+                judgeTheNumber(args, 2);
                 Repository.commit(args[1]);
                 break;
 
             case "rm":
                 // TODO:2
-                judgeTheNumberOrFormatOfOperands(args, 2);
+                judgeTheNumber(args, 2);
                 Repository.rm(args[1]);
                 break;
 
             case "log":
                 //TODO:3
-                judgeTheNumberOrFormatOfOperands(args, 1);
+                judgeTheNumber(args, 1);
                 Repository.log();
                 break;
 
             case "global-log":
-                judgeTheNumberOrFormatOfOperands(args, 1);
+                judgeTheNumber(args, 1);
                 Repository.globalLog();
+                break;
+
+            case "find":
+                judgeTheNumber(args, 2);
+                Repository.find(args[1]);
+                break;
+
+            case "checkout":
+                int flag = judgeForCheckout(args);
+                switch(flag) {
+                    case 0:
+                        break;
+                    case 1:
+                        Repository.checkoutForFile(args[2]);
+                        break;
+                    case 2:
+                        Repository.checkoutForFile(args[1], args[3]);
+                }
                 break;
 
             default:
@@ -58,9 +76,35 @@ public class Main {
         }
     }
 
-    public static void judgeTheNumberOrFormatOfOperands(String[] args, int mount) {
+    public static void judgeTheNumber(String[] args, int mount) {
         if (args.length != mount) {
             Utils.exitWithMessage("Incorrect operands.");
+        }
+    }
+
+    /** case1: java gitlet.Main checkout -- [file name]
+     *  case2: java gitlet.Main checkout [commit id] -- [file name]
+     *  case0: java gitlet.Main checkout [branch name]
+     */
+    public static int judgeForCheckout(String[] args) {
+        if (args.length == 2) {
+            if (args[1].equals("--")) {
+                Utils.exitWithMessage("Incorrect operands.");
+            }
+            return 0;
+        } else if (args.length == 3) {
+            if (!args[1].equals("--")) {
+                Utils.exitWithMessage("Incorrect operands.");
+            }
+            return 1;
+        } else if (args.length == 4) {
+            if (!args[2].equals("--")) {
+                Utils.exitWithMessage("Incorrect operands.");
+            }
+            return 2;
+        } else {
+            Utils.exitWithMessage("Incorrect operands.");
+            return 999;
         }
     }
 }

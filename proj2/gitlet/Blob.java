@@ -16,6 +16,15 @@ public class Blob implements Serializable {
         Utils.writeObject(file, this);
     }
 
+    public static Blob load(String fileHash) {
+        File source = Utils.join(Repository.BLOBS_DIR, fileHash);
+        return Utils.readObject(source, Blob.class);
+    }
+
+    public byte[] getContent() {
+        return content;
+    }
+
     public static void remove(String fileHash) {
         File target = Utils.join(Repository.STAGE_DIR, fileHash);
         target.delete();

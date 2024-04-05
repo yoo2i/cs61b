@@ -193,7 +193,7 @@ public class Repository {
         }
 
         String tmp = readContentsAsString(HEAD_FILE);
-        while (tmp != null) {
+        while (!tmp.isEmpty()) {
             Commit commit = Commit.load(tmp);
 
             System.out.println(commit);
@@ -242,14 +242,14 @@ public class Repository {
                 return hash;
             }
         }
-        return null;
+        return "";
     }
     public static void checkoutForFile(String fileName) {
         checkoutForFile(readContentsAsString(HEAD_FILE), fileName);
     }
     public static void checkoutForFile(String commitId, String fileName) {
         commitId = getCompleteCommitId(commitId);
-        if (commitId == null) {
+        if (commitId.isEmpty()) {
             exitWithMessage("No commit with that id exists.");
         }
         Commit commit = Commit.load(commitId);

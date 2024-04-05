@@ -36,8 +36,8 @@ public class Commit implements Serializable {
     public Commit() {
         timeStamp = new Date(0);
         message = "initial commit";
-        firstParent = null;
-        secondParent = null;
+        firstParent = "";
+        secondParent = "";
         blobs = new HashMap<>();
     }
 
@@ -47,7 +47,7 @@ public class Commit implements Serializable {
         this.timeStamp = new Date();
         this.message = message;
         this.firstParent = readContentsAsString(Repository.HEAD_FILE);
-        this.secondParent = null;
+        this.secondParent = "";
         this.blobs = new HashMap<>(dadCommit.getTracks());
 
         this.blobs.putAll(stageArea.getAddition());
@@ -108,7 +108,7 @@ public class Commit implements Serializable {
 
     @Override
     public String toString() {//还没实现merge相关的
-        String startString = "==\n";
+        String startString = "===\n";
 
         String commitString = String.format("commit %s\n", hash);
 

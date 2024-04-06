@@ -81,7 +81,7 @@
 
 ### commit
 
-从父commit中获得文件映射，然后根据暂存区修改映射（包括增加和减少），接着将文件从.gitlet/objects/stage移动到.gitlet/objects/blobs，并且清空暂存区的映射。最后移动头指针，序列化暂存区和当前commit。
+从父commit中获得文件映射，然后根据暂存区修改映射（包括增加和减少），接着将文件从.gitlet/objects/stage移动到.gitlet/objects/blobs，并且清空暂存区的映射。最后移动头指针，**同时更新当前分支的头节点**，序列化暂存区和当前commit。
 
 ### rm
 
@@ -121,7 +121,7 @@
 
 创建然后写入；对于当前commit跟踪但是目标commit不跟踪的文件进行删除；清空暂存区（除非当前=目标）；切换到的分支被认为是当前分支。
 
-​	找到当前分支的头节点和目标分支的头节点，如果cwd中有未被当前commit跟踪并且被目标commit跟踪且文件版本不同（会导致覆盖）的文件，退出；当前commit跟踪但是目标commit不跟踪的文件进行删除；目标commit跟踪的文件放入cwd（创建or覆盖）；清空暂存区并保存；调整HEAD指针。
+​	找到当前分支的头节点和目标分支的头节点，如果cwd中有未被当前commit跟踪并且被目标commit跟踪且文件版本不同（会导致覆盖）的文件，退出；当前commit跟踪但是目标commit不跟踪的文件进行删除；目标commit跟踪的文件放入cwd（创建or覆盖）；清空暂存区并保存；调整HEAD指针；调整current_branch
 
 ## Persistence
 

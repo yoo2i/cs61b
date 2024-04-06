@@ -35,6 +35,8 @@ public class Repository {
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
     public static final File STAGE_FILE = join(GITLET_DIR, "stage");
 
+    public static final File CURRENT_BRANCH_FILE = join(GITLET_DIR, "current_branch");
+
     /* TODO: fill in the rest of this class. */
 
     private static void initFilesAndDirs() {
@@ -52,6 +54,11 @@ public class Repository {
         }
         try {
             STAGE_FILE.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            CURRENT_BRANCH_FILE.createNewFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -85,6 +92,7 @@ public class Repository {
         writeContents(HEAD_FILE, hash);
 
         Branch.createBranch("master", hash);
+        Branch.updateCurrentBranch("master");
     }
 
     public static void add(String fileName) {
@@ -146,6 +154,8 @@ public class Repository {
 
         String hash = sonCommit.calHash();
         writeContents(HEAD_FILE, hash);
+        String currentBranchName = Branch.getCurrentBranchName();
+        writeContents(join(REFS_DIR, currentBranchName), hash);
 
         File commitFile = join(COMMITS_DIR, hash);
         try {
@@ -243,7 +253,7 @@ public class Repository {
         List<String> branchesNameList = plainFilenamesIn(REFS_DIR);
         Collections.sort(branchesNameList);
         for (String branch : branchesNameList) {
-            if (readContentsAsString(HEAD_FILE).equals(readContentsAsString(join(REFS_DIR, branch)))) {
+            if (branch.equals(Branch.getCurrentBranchName())) {
                 branches.append(String.format("*%s\n", branch));
             } else {
                 branches.append(String.format("%s\n", branch));
@@ -317,11 +327,8 @@ public class Repository {
             exitWithMessage("No such branch exists.");
         }
 
-        List<String> branchesNameList = plainFilenamesIn(REFS_DIR);
-        for (String branch : branchesNameList) {
-            if (readContentsAsString(HEAD_FILE).equals(readContentsAsString(join(REFS_DIR, branch)))) {
-                exitWithMessage("No need to checkout the current branch.");
-            }
+        if (branchName.equals(Branch.getCurrentBranchName())) {
+            exitWithMessage("No need to checkout the current branch.");
         }
 
         Commit nowCommit = Commit.load(readContentsAsString(HEAD_FILE));
@@ -367,5 +374,6 @@ public class Repository {
         stageArea.save();
 
         writeContents(HEAD_FILE, checkCommit.getHash());
+        Branch.updateCurrentBranch(branchName);
     }
 }

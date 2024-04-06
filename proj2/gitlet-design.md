@@ -93,6 +93,20 @@
 
 判断暂存区是否存在该文件，存在则取消暂存；然后判断当前文件是否被跟踪，如果是则标记为可删除并且删除（如果存在）。
 
+### status
+
+- Branches
+
+​	遍历.gitlet/ref文件夹获得所有分支名的列表并对其排序，然后从HEAD中读出当前分支的索引，开始输出，如果是当前分支就加*
+
+- Staged Files
+
+​	stageArea中的addition的key， 排序后输出。
+
+- Removed Files
+
+​	stageArea中的removal，排序后输出。
+
 ### checkout
 
 分为两个函数来实现，一个操作的是文件一个操作的是分支。

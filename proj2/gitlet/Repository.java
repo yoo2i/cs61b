@@ -2,8 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -233,6 +232,44 @@ public class Repository {
         if (flag == 0) {
             exitWithMessage("Found no commit with that message.");
         }
+    }
+
+    public static void status() {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        StringBuilder branches = new StringBuilder("=== Branches ===\n");
+        List<String> branchesNameList = plainFilenamesIn(REFS_DIR);
+        Collections.sort(branchesNameList);
+        for (String branch : branchesNameList) {
+            if (readContentsAsString(HEAD_FILE).equals(readContentsAsString(join(REFS_DIR, branch)))) {
+                branches.append(String.format("*%s\n", branch));
+            } else {
+                branches.append(String.format("%s\n", branch));
+            }
+        }
+        System.out.println(branches);
+
+        Stage stageArea = Stage.load();
+        StringBuilder stagedFiles = new StringBuilder("=== Staged Files ===\n");
+        List<String> stagedFilesNameList = new ArrayList<>(stageArea.getAddition().keySet());
+        Collections.sort(stagedFilesNameList);
+        for (String fileName : stagedFilesNameList) {
+            stagedFiles.append(String.format("%s\n", fileName));
+        }
+        System.out.println(stagedFiles);
+
+        StringBuilder removedFiles = new StringBuilder("=== Removed Files ===\n");
+        List<String> removedFilesNameList = new ArrayList<>(stageArea.getRemoval());
+        Collections.sort(removedFilesNameList);
+        for (String fileName : removedFilesNameList) {
+            removedFiles.append(String.format("%s\n", fileName));
+        }
+        System.out.println(removedFiles);
+
+        System.out.println("=== Modifications Not Staged For Commit ===\n");
+        System.out.println("=== Untracked Files ===\n");
     }
 
     public static String getCompleteCommitId(String fileHash) {

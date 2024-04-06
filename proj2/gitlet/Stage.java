@@ -56,7 +56,7 @@ public class Stage implements Serializable {
     }
 
     public boolean isEmpty() {
-        return addition.isEmpty() || removal.isEmpty();
+        return addition.isEmpty() && removal.isEmpty();
     }
 
     public void clear() {

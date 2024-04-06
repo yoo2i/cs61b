@@ -55,6 +55,10 @@ public class Stage implements Serializable {
         return removal;
     }
 
+    public boolean isEmpty() {
+        return addition.isEmpty() || removal.isEmpty();
+    }
+
     public void clear() {
         addition.clear();
         removal.clear();

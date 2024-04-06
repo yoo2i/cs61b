@@ -128,7 +128,7 @@ public class Repository {
 
     public static void commit(String message) {
         Stage stageArea = Stage.load();
-        if (stageArea.getAddition().isEmpty()) {
+        if (stageArea.isEmpty()) {
             exitWithMessage("No changes added to the commit.");
         }
         if (message.isEmpty()) {

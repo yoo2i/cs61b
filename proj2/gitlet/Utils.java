@@ -44,10 +44,6 @@ class Utils {
         }
         return bos.toByteArray();
     }
-    static String calHash(Object obj) {
-        byte[] bytes = getByteArray(obj);
-        return sha1(bytes);
-    }
 
     /** The length of a complete SHA-1 UID as a hexadecimal numeral. */
     static final int UID_LENGTH = 40;

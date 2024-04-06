@@ -99,7 +99,7 @@ public class Repository {
 
         Stage stageArea = Stage.load();
         Commit commit = Commit.load();
-        String fileHash = Utils.calHash(readContents(addFile));
+        String fileHash = Utils.sha1(readContents(addFile));
 
         if (stageArea.existFileInAddition(fileName)) {
             Blob.remove(fileHash);
@@ -308,7 +308,22 @@ public class Repository {
             exitWithMessage("File does not exist in that commit.");
         }
     }
-    public static void checkoutForBranch(){
+    public static void checkoutForBranch(String branchName){
+        Commit nowCommit = Commit.load(readContentsAsString(HEAD_FILE));
+        File branchFile = join(REFS_DIR, branchName);
+        Commit checkCommit = Commit.load(readContentsAsString(branchFile));
+
+        List<String> allFiles = plainFilenamesIn(CWD);
+        for (String fileName : allFiles) {
+            if (!nowCommit.trackTheFile(fileName)) {
+                if (checkCommit.trackTheFile(fileName)){
+                    if (sha1(readContents(join(CWD, fileName))).equals(checkCommit.getFileHash(fileName))) {
+                        exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+                    }
+                }
+            }
+        }
+
 
     }
 }

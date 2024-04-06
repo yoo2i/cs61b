@@ -57,6 +57,7 @@ public class Main {
             case "status":
                 judgeTheNumber(args, 1);
                 Repository.status();
+                break;
 
             case "checkout":
                 int flag = judgeForCheckout(args);
@@ -68,6 +69,7 @@ public class Main {
                         break;
                     case 2:
                         Repository.checkoutForFile(args[1], args[3]);
+                        break;
                 }
                 break;
 

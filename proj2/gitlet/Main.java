@@ -63,6 +63,7 @@ public class Main {
                 int flag = judgeForCheckout(args);
                 switch(flag) {
                     case 0:
+                        Repository.checkoutForBranch(args[1]);
                         break;
                     case 1:
                         Repository.checkoutForFile(args[2]);

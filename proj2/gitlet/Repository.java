@@ -309,21 +309,63 @@ public class Repository {
         }
     }
     public static void checkoutForBranch(String branchName){
-        Commit nowCommit = Commit.load(readContentsAsString(HEAD_FILE));
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
         File branchFile = join(REFS_DIR, branchName);
+        if (!branchFile.exists()) {
+            exitWithMessage("No such branch exists.");
+        }
+
+        List<String> branchesNameList = plainFilenamesIn(REFS_DIR);
+        for (String branch : branchesNameList) {
+            if (readContentsAsString(HEAD_FILE).equals(readContentsAsString(join(REFS_DIR, branch)))) {
+                exitWithMessage("No need to checkout the current branch.");
+            }
+        }
+
+        Commit nowCommit = Commit.load(readContentsAsString(HEAD_FILE));
         Commit checkCommit = Commit.load(readContentsAsString(branchFile));
 
         List<String> allFiles = plainFilenamesIn(CWD);
         for (String fileName : allFiles) {
             if (!nowCommit.trackTheFile(fileName)) {
                 if (checkCommit.trackTheFile(fileName)){
-                    if (sha1(readContents(join(CWD, fileName))).equals(checkCommit.getFileHash(fileName))) {
+                    if (!sha1(readContents(join(CWD, fileName))).equals(checkCommit.getFileHash(fileName))) {
                         exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
                     }
                 }
             }
         }
 
+        for (String fileName : allFiles) {
+            if (nowCommit.trackTheFile(fileName)) {
+                if (!checkCommit.trackTheFile(fileName)) {
+                    File file = join(CWD, fileName);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+            }
+        }
 
+        for (Map.Entry<String, String> entry : checkCommit.getTracks().entrySet()) {
+            Blob blob = Blob.load(entry.getValue());
+            File file = join(CWD, entry.getKey());
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            writeContents(file, blob.getContent());
+        }
+
+        Stage stageArea = Stage.load();
+        stageArea.clear();
+        stageArea.save();
+
+        writeContents(HEAD_FILE, checkCommit.getHash());
     }
 }

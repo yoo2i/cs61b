@@ -37,4 +37,9 @@ public class Branch {
     public static void updateCurrentBranch(String branchName) {
         Utils.writeContents(CURRENT_BRANCH_FILE, branchName);
     }
+
+    public static void updateCurrentBranchHead(String hash) {
+        File target = join(REFS_DIR, getCurrentBranchName());
+        writeContents(target, hash);
+    }
 }

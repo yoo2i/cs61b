@@ -82,6 +82,11 @@ public class Main {
                 Repository.rmBranch(args[1]);
                 break;
 
+            case "reset":
+                judgeTheNumber(args, 2);
+                Repository.reset(args[1]);
+                break;
+
             default:
                 Utils.exitWithMessage("No command with that name exists.");
         }

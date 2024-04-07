@@ -123,6 +123,12 @@
 
 ​	找到当前分支的头节点和目标分支的头节点，如果cwd中有未被当前commit跟踪并且被目标commit跟踪且文件版本不同（会导致覆盖）的文件，退出；当前commit跟踪但是目标commit不跟踪的文件进行删除；目标commit跟踪的文件放入cwd（创建or覆盖）；清空暂存区并保存；调整HEAD指针；调整current_branch。
 
+### reset
+
+会同时移动head指针和分支维护的头指针，不会出现头分类状态（见文档最开始）。
+
+找到当前节点和目标节点，如果cwd中有未被当前commit跟踪并且被目标commit跟踪且文件版本不同（会导致覆盖）的文件，退出；当前commit跟踪但是目标commit不跟踪的文件进行删除；目标commit跟踪的文件放入cwd（创建or覆盖）；清空暂存区并保存；调整当前分支头节点内容和HEAD内容。
+
 ## Persistence
 
 ## some problems

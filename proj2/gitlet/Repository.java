@@ -133,6 +133,18 @@ public class Repository {
         stageArea.save();
     }
 
+    public static void deleteAllInStage(Stage stageArea) {
+        stageArea.clear();
+        stageArea.save();
+
+        File[] files = STAGE_DIR.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+    }
+
     public static void commit(String message) {
         Stage stageArea = Stage.load();
         if (stageArea.isEmpty()) {
@@ -149,8 +161,7 @@ public class Repository {
             oldFile.renameTo(newFile);
         }
 
-        stageArea.clear();
-        stageArea.save();
+        deleteAllInStage(stageArea);
 
         String hash = sonCommit.calHash();
         writeContents(HEAD_FILE, hash);
@@ -291,10 +302,49 @@ public class Repository {
         }
         return "";
     }
+    public static void modifyCWDSafely(Commit nowCommit, Commit targetCommit) {
+        List<String> allFiles = plainFilenamesIn(CWD);
+        for (String fileName : allFiles) {
+            if (!nowCommit.trackTheFile(fileName)) {
+                if (targetCommit.trackTheFile(fileName)){
+                    if (!sha1(readContents(join(CWD, fileName))).equals(targetCommit.getFileHash(fileName))) {
+                        exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+                    }
+                }
+            }
+        }
+
+        for (String fileName : allFiles) {
+            if (nowCommit.trackTheFile(fileName)) {
+                if (!targetCommit.trackTheFile(fileName)) {
+                    File file = join(CWD, fileName);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<String, String> entry : targetCommit.getTracks().entrySet()) {
+            Blob blob = Blob.load(entry.getValue());
+            File file = join(CWD, entry.getKey());
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            writeContents(file, blob.getContent());
+        }
+    }
     public static void checkoutForFile(String fileName) {
         checkoutForFile(readContentsAsString(HEAD_FILE), fileName);
     }
     public static void checkoutForFile(String commitId, String fileName) {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
         commitId = getCompleteCommitId(commitId);
         if (commitId.isEmpty()) {
             exitWithMessage("No commit with that id exists.");
@@ -334,44 +384,10 @@ public class Repository {
         Commit nowCommit = Commit.load(readContentsAsString(HEAD_FILE));
         Commit checkCommit = Commit.load(readContentsAsString(branchFile));
 
-        List<String> allFiles = plainFilenamesIn(CWD);
-        for (String fileName : allFiles) {
-            if (!nowCommit.trackTheFile(fileName)) {
-                if (checkCommit.trackTheFile(fileName)){
-                    if (!sha1(readContents(join(CWD, fileName))).equals(checkCommit.getFileHash(fileName))) {
-                        exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
-                    }
-                }
-            }
-        }
-
-        for (String fileName : allFiles) {
-            if (nowCommit.trackTheFile(fileName)) {
-                if (!checkCommit.trackTheFile(fileName)) {
-                    File file = join(CWD, fileName);
-                    if (file.exists()) {
-                        file.delete();
-                    }
-                }
-            }
-        }
-
-        for (Map.Entry<String, String> entry : checkCommit.getTracks().entrySet()) {
-            Blob blob = Blob.load(entry.getValue());
-            File file = join(CWD, entry.getKey());
-            if (!file.exists()) {
-                try {
-                    file.createNewFile();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            writeContents(file, blob.getContent());
-        }
+        modifyCWDSafely(nowCommit, checkCommit);
 
         Stage stageArea = Stage.load();
-        stageArea.clear();
-        stageArea.save();
+        deleteAllInStage(stageArea);
 
         writeContents(HEAD_FILE, checkCommit.getHash());
         Branch.updateCurrentBranch(branchName);
@@ -403,5 +419,26 @@ public class Repository {
         }
 
         Branch.deleteBranch(branchName);
+    }
+
+    public static void reset(String commitId) {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        commitId = getCompleteCommitId(commitId);
+        if (commitId.isEmpty()) {
+            exitWithMessage("No commit with that id exists.");
+        }
+        Commit targetCommit = Commit.load(commitId);
+        Commit nowCommit = Commit.load();
+
+        modifyCWDSafely(nowCommit, targetCommit);
+
+        Stage stageArea = Stage.load();
+        deleteAllInStage(stageArea);
+
+        Branch.updateCurrentBranchHead(commitId);
+        writeContents(HEAD_FILE, commitId);
     }
 }

@@ -1,7 +1,10 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+
+import static gitlet.Utils.join;
 
 public class Blob implements Serializable {
     private byte[] content;
@@ -12,7 +15,13 @@ public class Blob implements Serializable {
         this.hash = hash;
     }
 
-    public void save(File file) {
+    public void save(String fileHash) {
+        File file = join(Repository.STAGE_DIR, fileHash);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         Utils.writeObject(file, this);
     }
 

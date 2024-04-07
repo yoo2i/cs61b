@@ -56,6 +56,21 @@ public class Commit implements Serializable {
         }
     }
 
+    public Commit(Stage stageArea, String message, String secondParent) {
+        Commit dadCommit = Commit.load();
+
+        this.timeStamp = new Date();
+        this.message = message;
+        this.firstParent = readContentsAsString(Repository.HEAD_FILE);
+        this.secondParent = secondParent;
+        this.blobs = new HashMap<>(dadCommit.getTracks());
+
+        this.blobs.putAll(stageArea.getAddition());
+        for (String name : stageArea.getRemoval()) {
+            this.blobs.remove(name);
+        }
+    }
+
     public static Commit load() {
         return Utils.readObject(join(Repository.COMMITS_DIR, readContentsAsString(Repository.HEAD_FILE)), Commit.class);
     }

@@ -87,6 +87,11 @@ public class Main {
                 Repository.reset(args[1]);
                 break;
 
+            case "merge":
+                judgeTheNumber(args, 2);
+                Repository.merge(args[1]);
+                break;
+
             default:
                 Utils.exitWithMessage("No command with that name exists.");
         }

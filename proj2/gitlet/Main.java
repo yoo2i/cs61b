@@ -1,7 +1,5 @@
 package gitlet;
 
-import java.util.ResourceBundle;
-
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -72,6 +70,16 @@ public class Main {
                         Repository.checkoutForFile(args[1], args[3]);
                         break;
                 }
+                break;
+
+            case "branch":
+                judgeTheNumber(args, 2);
+                Repository.branch(args[1]);
+                break;
+
+            case "rm-branch":
+                judgeTheNumber(args, 2);
+                Repository.rmBranch(args[1]);
                 break;
 
             default:

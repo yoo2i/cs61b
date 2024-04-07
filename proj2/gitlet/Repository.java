@@ -376,4 +376,32 @@ public class Repository {
         writeContents(HEAD_FILE, checkCommit.getHash());
         Branch.updateCurrentBranch(branchName);
     }
+
+    public static void branch(String branchName) {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        if (Branch.hasBeenCreated(branchName)) {
+            exitWithMessage("A branch with that name already exists.");
+        }
+
+        Branch.createBranch(branchName, readContentsAsString(HEAD_FILE));
+    }
+
+    public static void rmBranch(String branchName) {
+        if (!hadBeenInit()) {
+            exitWithMessage("Not in an initialized Gitlet directory.");
+        }
+
+        if (!Branch.hasBeenCreated(branchName)) {
+            exitWithMessage("A branch with that name does not exist.");
+        }
+
+        if (Branch.getCurrentBranchName().equals(branchName)) {
+            exitWithMessage("Cannot remove the current branch.");
+        }
+
+        Branch.deleteBranch(branchName);
+    }
 }

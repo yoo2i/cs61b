@@ -583,7 +583,7 @@ public class Repository {
                                 String tmp1 = new String(Blob.load(givenCommit.getFileHash(fileName)).getContent());
                                 sb.append(tmp1);
 
-                                sb.append(">>>>>>>");
+                                sb.append(">>>>>>>\n");
                                 String content = sb.toString();
 
                                 File target = join(CWD, fileName);

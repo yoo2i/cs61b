@@ -1,7 +1,7 @@
 package gitlet;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author yoo2i
  */
 public class Main {
 
@@ -10,34 +10,28 @@ public class Main {
      */
     public static void main(String[] args) {
         insureArgsIsNotEmpty(args);
-
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 judgeTheNumber(args, 1);
                 Repository.init();
                 break;
-
             case "add":
                 judgeTheNumber(args, 2);
                 Repository.add(args[1]);
                 break;
-
             case "commit":
                 judgeTheNumber(args, 2);
                 Repository.commit(args[1]);
                 break;
-
             case "rm":
                 judgeTheNumber(args, 2);
                 Repository.rm(args[1]);
                 break;
-
             case "log":
                 judgeTheNumber(args, 1);
                 Repository.log();
                 break;
-
             case "global-log":
                 judgeTheNumber(args, 1);
                 Repository.globalLog();
@@ -55,7 +49,7 @@ public class Main {
 
             case "checkout":
                 int flag = judgeForCheckout(args);
-                switch(flag) {
+                switch (flag) {
                     case 0:
                         Repository.checkoutForBranch(args[1]);
                         break;
@@ -64,6 +58,8 @@ public class Main {
                         break;
                     case 2:
                         Repository.checkoutForFile(args[1], args[3]);
+                        break;
+                    default:
                         break;
                 }
                 break;
@@ -127,7 +123,7 @@ public class Main {
             return 2;
         } else {
             Utils.exitWithMessage("Incorrect operands.");
-            return 999;
+            return 0;
         }
     }
 }

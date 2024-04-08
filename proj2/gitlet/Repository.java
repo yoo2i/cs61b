@@ -7,7 +7,7 @@ import java.util.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet repository.
- *  @author TODO
+ *  @author yoo2i
  */
 public class Repository {
     /**
@@ -235,7 +235,7 @@ public class Repository {
         }
 
         List<String> commitNameList = plainFilenamesIn(COMMITS_DIR);
-        for(String name : commitNameList) {
+        for (String name : commitNameList) {
             Commit commit = Commit.load(name);
             System.out.println(commit);
         }
@@ -249,7 +249,7 @@ public class Repository {
         List<String> commitNameList = plainFilenamesIn(COMMITS_DIR);
         int flag = 0;
 
-        for(String name : commitNameList) {
+        for (String name : commitNameList) {
             Commit commit = Commit.load(name);
             if (message.equals(commit.getMessage())) {
                 flag = 1;
@@ -313,9 +313,10 @@ public class Repository {
         List<String> allFiles = plainFilenamesIn(CWD);
         for (String fileName : allFiles) {
             if (!nowCommit.trackTheFile(fileName)) {
-                if (targetCommit.trackTheFile(fileName)){
+                if (targetCommit.trackTheFile(fileName)) {
                     if (!sha1(readContents(join(CWD, fileName))).equals(targetCommit.getFileHash(fileName))) {
-                        exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
+                        exitWithMessage(
+                                "There is an untracked file in the way; delete it, or add and commit it first.");
                     }
                 }
             }
@@ -375,7 +376,7 @@ public class Repository {
             exitWithMessage("File does not exist in that commit.");
         }
     }
-    public static void checkoutForBranch(String branchName){
+    public static void checkoutForBranch(String branchName) {
         if (!hadBeenInit()) {
             exitWithMessage("Not in an initialized Gitlet directory.");
         }
@@ -449,7 +450,7 @@ public class Repository {
         writeContents(HEAD_FILE, commitId);
     }
 
-    public static String getSplitId(Commit nowCommit, Commit givenCommit) {//need a bfs
+    public static String getSplitId(Commit nowCommit, Commit givenCommit) { //need a bfs
         Set<String> nowCommitAncestor = new HashSet<>();
         nowCommitAncestor.add(nowCommit.getHash());
         Queue<Commit> queue = new LinkedList<>();
@@ -510,7 +511,9 @@ public class Repository {
         return answer;
     }
     public static boolean modifyFile(Commit commit, Commit splitCommit, String fileName) {
-        return (!commit.trackTheFile(fileName)) || (commit.trackTheFile(fileName) && !commit.getFileHash(fileName).equals(splitCommit.getFileHash(fileName)));
+        return (!commit.trackTheFile(fileName))
+                || (commit.trackTheFile(fileName)
+                    && !commit.getFileHash(fileName).equals(splitCommit.getFileHash(fileName)));
     }
     public static boolean modifySame(Commit nowCommit, Commit givenCommit, String fileName) {
         if (nowCommit.trackTheFile(fileName)) {
@@ -521,6 +524,43 @@ public class Repository {
             }
         } else {
             return !givenCommit.trackTheFile(fileName);
+        }
+    }
+    public static boolean doForThreeb(Commit nowCommit, Commit givenCommit, String fileName, Stage stageArea) {
+        StringBuilder sb = new StringBuilder("<<<<<<< HEAD\n");
+        if (nowCommit.trackTheFile(fileName)) {
+            String tmp = new String(Blob.load(nowCommit.getFileHash(fileName)).getContent());
+            sb.append(tmp);
+        }
+        sb.append("=======\n");
+        if (givenCommit.trackTheFile(fileName)) {
+            String tmp = new String(Blob.load(givenCommit.getFileHash(fileName)).getContent());
+            sb.append(tmp);
+        }
+        sb.append(">>>>>>>\n");
+        String content = sb.toString();
+
+        File target = join(CWD, fileName);
+        writeContents(target, content);
+
+        String hash = sha1(content);
+        stageArea.addFileInAddition(fileName, hash);
+        Blob blob = new Blob(content.getBytes(), hash);
+        blob.save(hash);
+
+        return true;
+    }
+    public static void judgeOverwrite(Commit nowCommit, Commit givenCommit) {
+        List<String> allFiles = plainFilenamesIn(CWD);
+        for (String fileName : allFiles) {
+            if (!nowCommit.trackTheFile(fileName)) {
+                if (givenCommit.trackTheFile(fileName)) {
+                    if (!sha1(readContents(join(CWD, fileName))).equals(givenCommit.getFileHash(fileName))) {
+                        exitWithMessage(
+                                "There is an untracked file in the way; delete it, or add and commit it first.");
+                    }
+                }
+            }
         }
     }
     public static void merge(String branchName) {
@@ -540,18 +580,8 @@ public class Repository {
         }
         Commit nowCommit = Commit.load();
         Commit givenCommit = Commit.load(readContentsAsString(join(REFS_DIR, branchName)));
-        List<String> allFiles = plainFilenamesIn(CWD);
-        for (String fileName : allFiles) {
-            if (!nowCommit.trackTheFile(fileName)) {
-                if (givenCommit.trackTheFile(fileName)){
-                    if (!sha1(readContents(join(CWD, fileName))).equals(givenCommit.getFileHash(fileName))) {
-                        exitWithMessage("There is an untracked file in the way; delete it, or add and commit it first.");
-                    }
-                }
-            }
-        }
+        judgeOverwrite(nowCommit, givenCommit);
         Boolean conflictFlag = false;
-
         String splitId = getSplitId(nowCommit, givenCommit);
         if (splitId.equals(givenCommit.getHash())) {
             exitWithMessage("Given branch is an ancestor of the current branch.");
@@ -560,34 +590,13 @@ public class Repository {
             exitWithMessage("Current branch fast-forwarded.");
         } else {
             Commit splitCommit = Commit.load(splitId);
-            Set<String> Files = getAllFiles(splitCommit, nowCommit, givenCommit);
-
-            for (String fileName : Files) {
+            Set<String> files = getAllFiles(splitCommit, nowCommit, givenCommit);
+            for (String fileName : files) {
                 if (splitCommit.trackTheFile(fileName)) {
                     if (modifyFile(nowCommit, splitCommit, fileName)) {
                         if (modifyFile(givenCommit, splitCommit, fileName)) {
-                            if (!modifySame(nowCommit, givenCommit, fileName)) {//3b
-                                conflictFlag = true;
-                                StringBuilder sb = new StringBuilder("<<<<<<< HEAD\n");
-                                if (nowCommit.trackTheFile(fileName)) {
-                                    String tmp = new String(Blob.load(nowCommit.getFileHash(fileName)).getContent());
-                                    sb.append(tmp);
-                                }
-                                sb.append("=======\n");
-                                if (givenCommit.trackTheFile(fileName)) {
-                                    String tmp = new String(Blob.load(givenCommit.getFileHash(fileName)).getContent());
-                                    sb.append(tmp);
-                                }
-                                sb.append(">>>>>>>\n");
-                                String content = sb.toString();
-
-                                File target = join(CWD, fileName);
-                                writeContents(target, content);
-
-                                String hash = sha1(content);
-                                stageArea.addFileInAddition(fileName, hash);
-                                Blob blob = new Blob(content.getBytes(), hash);
-                                blob.save(hash);
+                            if (!modifySame(nowCommit, givenCommit, fileName)) { //3b
+                                conflictFlag = doForThreeb(nowCommit, givenCommit, fileName, stageArea);
                             }
                         }
                     } else {
@@ -608,27 +617,7 @@ public class Repository {
                     if (nowCommit.trackTheFile(fileName)) {
                         if (givenCommit.trackTheFile(fileName)) {
                             if (!modifySame(nowCommit, givenCommit, fileName)) { //3b
-                                conflictFlag = true;
-                                StringBuilder sb = new StringBuilder("<<<<<<< HEAD\n");
-
-                                String tmp = new String(Blob.load(nowCommit.getFileHash(fileName)).getContent());
-                                sb.append(tmp);
-
-                                sb.append("=======\n");
-
-                                String tmp1 = new String(Blob.load(givenCommit.getFileHash(fileName)).getContent());
-                                sb.append(tmp1);
-
-                                sb.append(">>>>>>>\n");
-                                String content = sb.toString();
-
-                                File target = join(CWD, fileName);
-                                writeContents(target, content);
-
-                                String hash = sha1(content);
-                                stageArea.addFileInAddition(fileName, hash);
-                                Blob blob = new Blob(content.getBytes(), hash);
-                                blob.save(hash);
+                                conflictFlag = doForThreeb(nowCommit, givenCommit, fileName, stageArea);
                             }
                         }
                     } else {
@@ -639,7 +628,6 @@ public class Repository {
                     }
                 }
             }
-
             stageArea.save();
             String message = String.format("Merged %s into %s.", branchName, Branch.getCurrentBranchName());
             commit(message, givenCommit.getHash());
@@ -650,6 +638,5 @@ public class Repository {
                 System.out.println("Encountered a merge conflict.");
             }
         }
-
     }
 }

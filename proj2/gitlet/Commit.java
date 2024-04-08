@@ -21,7 +21,7 @@ public class Commit implements Serializable {
     private String message;
     private String firstParent;
     private String secondParent;
-    private Map<String, String> blobs;//fileName -> fileHash
+    private Map<String, String> blobs; //fileName -> fileHash
     private String hash;
 
     public Commit() {
@@ -63,7 +63,8 @@ public class Commit implements Serializable {
     }
 
     public static Commit load() {
-        return Utils.readObject(join(Repository.COMMITS_DIR, readContentsAsString(Repository.HEAD_FILE)), Commit.class);
+        File file = join(Repository.COMMITS_DIR, readContentsAsString(Repository.HEAD_FILE));
+        return Utils.readObject(file, Commit.class);
     }
 
     public static Commit load(String fileHash) {
@@ -91,7 +92,9 @@ public class Commit implements Serializable {
     }
 
     public String calHash() {
-        String answer = sha1(getByteArray(timeStamp), message, firstParent, secondParent, getByteArray(blobs));
+        byte[] time = getByteArray(timeStamp);
+        byte[] bytesBlobs = getByteArray(blobs);
+        String answer = sha1(time, message, firstParent, secondParent, bytesBlobs);
         this.hash = answer;
         return answer;
     }
@@ -116,14 +119,15 @@ public class Commit implements Serializable {
     }
 
     @Override
-    public String toString() {//还没实现merge相关的
+    public String toString() { //还没实现merge相关的
         String startString = "===\n";
 
         String commitString;
         if (secondParent.isEmpty()) {
             commitString = String.format("commit %s\n", hash);
         } else {
-            commitString = String.format("commit %s\nMerge: %s %s\n", hash, firstParent.substring(0, 7), secondParent.substring(0,7));
+            commitString = String.format("commit %s\nMerge: %s %s\n",
+                    hash, firstParent.substring(0, 7), secondParent.substring(0, 7));
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("E MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);

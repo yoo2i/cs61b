@@ -170,14 +170,6 @@ public class Repository {
         }
         Commit sonCommit = new Commit(stageArea, message, secondParent);
 
-        for (Map.Entry<String, String> entry : stageArea.getAddition().entrySet()) {
-            File oldFile = join(STAGE_DIR, entry.getValue());
-            File newFile = join(BLOBS_DIR, entry.getValue());
-            oldFile.renameTo(newFile);
-        }
-
-        deleteAllInStage(stageArea);
-
         String hash = sonCommit.calHash();
         writeContents(HEAD_FILE, hash);
         String currentBranchName = Branch.getCurrentBranchName();
@@ -553,6 +545,9 @@ public class Repository {
                                 sb.append(">>>>>>>");
                                 String content = sb.toString();
 
+                                File target = join(CWD, fileName);
+                                writeContents(target, content);
+
                                 String hash = sha1(content);
                                 stageArea.addFileInAddition(fileName, hash);
                                 Blob blob = new Blob(content.getBytes(), hash);
@@ -562,8 +557,13 @@ public class Repository {
                     } else {
                         if (modifyFile(givenCommit, splitCommit, fileName)) {
                             if (givenCommit.trackTheFile(fileName)) { //1
+                                checkoutForFile(givenCommit.getHash(), fileName);
                                 stageArea.addFileInAddition(fileName, givenCommit.getFileHash(fileName));
                             } else { //6
+                                File target = join(CWD, fileName);
+                                if (target.exists()) {
+                                    target.delete();
+                                }
                                 stageArea.addFileInRemoval(fileName);
                             }
                         }
@@ -586,6 +586,9 @@ public class Repository {
                                 sb.append(">>>>>>>");
                                 String content = sb.toString();
 
+                                File target = join(CWD, fileName);
+                                writeContents(target, content);
+
                                 String hash = sha1(content);
                                 stageArea.addFileInAddition(fileName, hash);
                                 Blob blob = new Blob(content.getBytes(), hash);
@@ -594,6 +597,7 @@ public class Repository {
                         }
                     } else {
                         if (givenCommit.trackTheFile(fileName)) { //5
+                            checkoutForFile(givenCommit.getHash(), fileName);
                             stageArea.addFileInAddition(fileName, givenCommit.getFileHash(fileName));
                         }
                     }

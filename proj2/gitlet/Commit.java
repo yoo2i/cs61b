@@ -1,7 +1,5 @@
 package gitlet;
 
-// TODO: any imports you need here
-
 import java.io.File;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -10,15 +8,10 @@ import java.util.*;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
- *  @author TODO
+ *  @author yoo2i
  */
 public class Commit implements Serializable {
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided one example for `message`.
@@ -30,8 +23,6 @@ public class Commit implements Serializable {
     private String secondParent;
     private Map<String, String> blobs;//fileName -> fileHash
     private String hash;
-
-    /* TODO: fill in the rest of this class. */
 
     public Commit() {
         timeStamp = new Date(0);
@@ -125,7 +116,12 @@ public class Commit implements Serializable {
     public String toString() {//还没实现merge相关的
         String startString = "===\n";
 
-        String commitString = String.format("commit %s\n", hash);
+        String commitString;
+        if (secondParent.isEmpty()) {
+            commitString = String.format("commit %s\n", hash);
+        } else {
+            commitString = String.format("commit %s\nMerge: %s %s\n", hash, firstParent.substring(0, 7), secondParent.substring(0,7));
+        }
 
         SimpleDateFormat sdf = new SimpleDateFormat("E MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
         sdf.setTimeZone(TimeZone.getDefault());

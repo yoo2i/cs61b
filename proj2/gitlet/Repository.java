@@ -6,18 +6,11 @@ import java.util.*;
 
 import static gitlet.Utils.*;
 
-// TODO: any imports you need here
-
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
- *
  *  @author TODO
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
-     *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
@@ -36,8 +29,6 @@ public class Repository {
     public static final File STAGE_FILE = join(GITLET_DIR, "stage");
 
     public static final File CURRENT_BRANCH_FILE = join(GITLET_DIR, "current_branch");
-
-    /* TODO: fill in the rest of this class. */
 
     private static void initFilesAndDirs() {
         GITLET_DIR.mkdir();

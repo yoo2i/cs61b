@@ -14,13 +14,11 @@ public class Main {
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 judgeTheNumber(args, 1);
                 Repository.init();
                 break;
 
             case "add":
-                // TODO: handle the `add [filename]` command
                 judgeTheNumber(args, 2);
                 Repository.add(args[1]);
                 break;
@@ -31,13 +29,11 @@ public class Main {
                 break;
 
             case "rm":
-                // TODO:2
                 judgeTheNumber(args, 2);
                 Repository.rm(args[1]);
                 break;
 
             case "log":
-                //TODO:3
                 judgeTheNumber(args, 1);
                 Repository.log();
                 break;

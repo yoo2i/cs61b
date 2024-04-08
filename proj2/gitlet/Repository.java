@@ -607,6 +607,9 @@ public class Repository {
             stageArea.save();
             String message = String.format("Merged %s into %s.", branchName, Branch.getCurrentBranchName());
             commit(message, givenCommit.getHash());
+            stageArea = Stage.load();
+            stageArea.clear();
+            stageArea.save();
             if (conflictFlag) {
                 System.out.println("Encountered a merge conflict.");
             }

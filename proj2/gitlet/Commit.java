@@ -99,6 +99,9 @@ public class Commit implements Serializable {
     public String getDad() {
         return firstParent;
     }
+    public String getSecondParent() {
+        return secondParent;
+    }
 
     public String getMessage() {
         return message;

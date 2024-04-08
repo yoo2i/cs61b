@@ -449,21 +449,57 @@ public class Repository {
         writeContents(HEAD_FILE, commitId);
     }
 
-    public static String getSplitId(Commit nowCommit, Commit givenCommit) {
+    public static String getSplitId(Commit nowCommit, Commit givenCommit) {//need a bfs
         Set<String> nowCommitAncestor = new HashSet<>();
         nowCommitAncestor.add(nowCommit.getHash());
-        for (Commit tmp = nowCommit; !tmp.getDad().isEmpty(); tmp = Commit.load(tmp.getDad())) {
+        Queue<Commit> queue = new LinkedList<>();
+        Set<Commit> forQueue = new HashSet<>();
+        queue.add(nowCommit);
+        forQueue.add(nowCommit);
+        for (Commit tmp = nowCommit; !tmp.getDad().isEmpty(); tmp = queue.peek()) {
             nowCommitAncestor.add(tmp.getDad());
+            if (!tmp.getSecondParent().isEmpty()) {
+                nowCommitAncestor.add(tmp.getSecondParent());
+            }
+            queue.remove();
+
+            if (!forQueue.contains(Commit.load(tmp.getDad()))) {
+                queue.add(Commit.load(tmp.getDad()));
+                forQueue.add(Commit.load(tmp.getDad()));
+            }
+            if (!tmp.getSecondParent().isEmpty()) {
+                if (!forQueue.contains(Commit.load(tmp.getDad()))) {
+                    queue.add(Commit.load(tmp.getSecondParent()));
+                    forQueue.add(Commit.load(tmp.getSecondParent()));
+                }
+            }
         }
+
         String splitId = givenCommit.getHash();
         Commit tmp = givenCommit;
+        queue.clear();
+        forQueue.clear();
+        queue.add(tmp);
+        forQueue.add(tmp);
         while (!tmp.getDad().isEmpty()) {
             if (nowCommitAncestor.contains(splitId)) {
                 break;
             }
-            splitId = tmp.getDad();
-            tmp = Commit.load(tmp.getDad());
+            queue.remove();
+            if (!forQueue.contains(Commit.load(tmp.getDad()))) {
+                queue.add(Commit.load(tmp.getDad()));
+                forQueue.add(Commit.load(tmp.getDad()));
+            }
+            if (!tmp.getSecondParent().isEmpty()) {
+                if (!forQueue.contains(Commit.load(tmp.getDad()))) {
+                    queue.add(Commit.load(tmp.getSecondParent()));
+                    forQueue.add(Commit.load(tmp.getSecondParent()));
+                }
+            }
+            splitId = queue.peek().getHash();
+            tmp = queue.peek();
         }
+
         return splitId;
     }
     public static Set<String> getAllFiles(Commit splitCommit, Commit nowCommit, Commit givenCommit) {
